@@ -19,6 +19,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Admin route protection
+  if (pathname.startsWith('/admin')) {
+    const { data: userData } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user?.id)
+      .single()
+
+    if (userData?.role !== 'ADMIN') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      return NextResponse.redirect(url)
+    }
+  }
+
   // Allow through
   return NextResponse.next()
 }
