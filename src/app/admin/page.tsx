@@ -1,5 +1,6 @@
 'use client';
 
+// Force dynamic rendering to ensure Supabase client works correctly in build time
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useCallback } from 'react';
