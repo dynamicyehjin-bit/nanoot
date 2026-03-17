@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Input } from '@/components/ui/Input';
@@ -12,7 +12,7 @@ interface BuildingInfo {
   name: string;
 }
 
-export default function BuildingCodePage() {
+function BuildingCodeContent() {
   const searchParams = useSearchParams();
   const buildingId = searchParams.get('id');
   
@@ -132,5 +132,13 @@ export default function BuildingCodePage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function BuildingCodePage() {
+  return (
+    <Suspense fallback={<div className="p-6">로딩 중...</div>}>
+      <BuildingCodeContent />
+    </Suspense>
   );
 }
