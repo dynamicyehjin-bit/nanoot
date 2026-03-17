@@ -46,6 +46,7 @@ CREATE TABLE co_buyings (
     pay_deadline TIMESTAMP WITH TIME ZONE,
     building_id UUID REFERENCES buildings(id) ON DELETE CASCADE, 
     creator_id UUID REFERENCES users(id) ON DELETE SET NULL,     
+    image_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
