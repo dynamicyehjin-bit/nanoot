@@ -44,6 +44,15 @@ export default async function ParticipatedDetail({ params }: { params: Promise<{
   const joiner = detailData.joiners[0];
   const joinerDetails = joiner.joiner_product_details;
 
+  // Fetch all joiner counts for this cobuying to calculate remaining quantity
+  const { data: allJoiners } = await supabase
+    .from('joiners')
+    .select('joiner_total_quantity')
+    .eq('co_buying_id', id);
+  
+  const currentTotalQuantity = allJoiners?.reduce((sum, j) => sum + j.joiner_total_quantity, 0) || 0;
+  const remainingQuantity = Math.max(0, detailData.total_quantity - currentTotalQuantity);
+
   // Format the data for the client component
   const initialDetails = joinerDetails.map((detail: any) => ({
     id: detail.id,
@@ -51,6 +60,7 @@ export default async function ParticipatedDetail({ params }: { params: Promise<{
     name: detail.product_options.name,
     price: detail.product_options.price,
     quantity: detail.joiner_quantity,
+    maxAvailable: detail.joiner_quantity + (detail.product_options.remain_quantity ?? remainingQuantity), 
   }));
 
   const coBuyingInfo = {
@@ -58,7 +68,8 @@ export default async function ParticipatedDetail({ params }: { params: Promise<{
     title: detailData.title,
     status: detailData.status as any,
     totalQuantity: detailData.total_quantity,
-    currentQuantity: 12, // TODO: Fetch total count
+    currentQuantity: currentTotalQuantity,
+    remainingQuantity: remainingQuantity,
     deadline: detailData.deadline,
     category: detailData.category,
     thumbnailUrl: 'https://images.unsplash.com/photo-1590481845199-3543ebce321f?q=80&w=2670&auto=format&fit=crop',

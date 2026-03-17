@@ -29,7 +29,29 @@ export default async function MyCoBuyingPage() {
     .order('created_at', { ascending: false });
 
   // Map data to expected shape for CoBuyingCard
-  const participatedItems = joinerData?.map(j => j.co_buyings).filter(Boolean) || [];
+  // For each cobuying, we need its total current quantity. 
+  // This is a bit expensive in a map, usually we join or use a view.
+  // For now, let's keep it simple or use the joiner's own quantity as a placeholder if aggregate is missing.
+  
+  const participatedItems = await Promise.all((joinerData || []).map(async (j: any) => {
+    const item = j.co_buyings;
+    if (!item) return null;
+
+    // Fetch total current quantity for this specific item
+    const { data: allJoiners } = await supabase
+      .from('joiners')
+      .select('joiner_total_quantity')
+      .eq('co_buying_id', item.id);
+    
+    const currentQuantity = allJoiners?.reduce((sum, join) => sum + join.joiner_total_quantity, 0) || 0;
+
+    return {
+      ...item,
+      current_quantity: currentQuantity
+    };
+  }));
+
+  const filteredItems = participatedItems.filter(Boolean);
 
   return (
     <div className="flex flex-col flex-1 pb-20 bg-gray-50 min-h-screen">
@@ -40,12 +62,12 @@ export default async function MyCoBuyingPage() {
 
       {/* List */}
       <div className="flex-1 bg-white">
-        {participatedItems.length === 0 ? (
+        {filteredItems.length === 0 ? (
           <div className="h-40 flex items-center justify-center text-gray-400 text-sm">
             참여한 공구가 없습니다.
           </div>
         ) : (
-          participatedItems.map((item: any) => (
+          filteredItems.map((item: any) => (
             <CoBuyingCard
               key={item.id}
               id={item.id}
@@ -55,9 +77,9 @@ export default async function MyCoBuyingPage() {
               category={item.category}
               status={item.status}
               totalQuantity={item.total_quantity}
-              currentQuantity={0} // TODO: DB에서 현재 수량 집계 조회 또는 joiner data에서 가져오기
+              currentQuantity={item.current_quantity}
               deadline={item.deadline}
-              thumbnailUrl={'https://images.unsplash.com/photo-1590481845199-3543ebce321f?q=80&w=2670&auto=format&fit=crop'} // 더미
+              thumbnailUrl={'https://images.unsplash.com/photo-1590481845199-3543ebce321f?q=80&w=2670&auto=format&fit=crop'} 
             />
           ))
         )}

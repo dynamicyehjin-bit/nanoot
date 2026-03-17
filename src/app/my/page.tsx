@@ -2,7 +2,8 @@ import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import { BottomNav } from '@/components/BottomNav';
 import { UserProfileClient } from './UserProfileClient';
-import { Settings, Info, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
+import { NotificationToggle } from './NotificationToggle';
+import { Info, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
 
 export default async function MyPage() {
   const supabase = await createClient();
@@ -30,6 +31,7 @@ export default async function MyPage() {
     .single();
 
   const isBuildingVerified = !!profile?.building_id;
+  const building = Array.isArray(profile?.buildings) ? profile.buildings[0] : profile?.buildings;
 
   return (
     <div className="flex flex-col flex-1 pb-20 bg-gray-50 min-h-screen">
@@ -44,7 +46,7 @@ export default async function MyPage() {
           initialProfile={{
             nickname: profile?.nickname || '이름없음',
             profileImageUrl: profile?.profile_image_url || 'https://i.pravatar.cc/150?u=' + user.id,
-            buildingName: isBuildingVerified ? profile.buildings.name : null,
+            buildingName: isBuildingVerified ? building?.name : null,
           }}
           isBuildingVerified={isBuildingVerified}
         />
@@ -53,13 +55,13 @@ export default async function MyPage() {
       {/* Menus */}
       <div className="bg-white mb-2 border-b border-gray-100 border-t">
         <div className="flex flex-col">
-          <MenuLink icon={<Settings size={20} />} title="알림 설정" href="/my/settings" />
+          <NotificationToggle />
           <MenuLink 
              icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>} 
              title="건물 단톡방" 
-             href={isBuildingVerified && profile.buildings?.open_chat_link ? profile.buildings.open_chat_link : '#'} 
-             target={isBuildingVerified && profile.buildings?.open_chat_link ? '_blank' : undefined}
-             onClick={(!isBuildingVerified || !profile.buildings?.open_chat_link) ? () => alert('등록된 건물 단톡방이 없습니다.') : undefined}
+             href={isBuildingVerified && building?.open_chat_link ? building.open_chat_link : '#'} 
+             target={isBuildingVerified && building?.open_chat_link ? '_blank' : undefined}
+             onClick={(!isBuildingVerified || !building?.open_chat_link) ? () => alert('등록된 건물 단톡방이 없습니다.') : undefined}
            />
           <MenuLink icon={<Info size={20} />} title="공지사항 / 서비스안내" href="/my/notices" />
           <MenuLink icon={<HelpCircle size={20} />} title="문의하기" href="/my/contact" />
@@ -67,14 +69,27 @@ export default async function MyPage() {
       </div>
 
       {/* Account Settings */}
-      <div className="bg-white px-5 py-4 flex flex-col gap-4">
+      <div className="bg-white px-5 py-4 flex flex-col gap-4 border-b border-gray-100">
          <form action="/auth/signout" method="post">
-            <button type="submit" className="text-[15px] font-medium text-gray-600 flex items-center gap-2">
+            <button type="submit" className="text-[15px] font-medium text-gray-600 flex items-center gap-2 hover:text-gray-900 transition-colors">
                <LogOut size={18} />
                로그아웃
             </button>
          </form>
          <button className="text-[14px] text-gray-400 text-left w-fit hover:underline">회원 탈퇴</button>
+      </div>
+
+      {/* Footer Terms */}
+      <div className="p-6 pb-24 flex flex-col gap-2">
+         <div className="flex gap-4 text-xs text-gray-400 font-medium">
+            <Link href="/terms" className="hover:underline text-gray-500">이용약관</Link>
+            <span className="text-gray-300">|</span>
+            <Link href="/privacy" className="hover:underline text-gray-500 font-bold">개인정보처리방침</Link>
+         </div>
+         <p className="text-[11px] text-gray-400 leading-relaxed">
+           나눗은 이웃 간의 신뢰를 바탕으로 하는 공동구매 나눔 서비스입니다.<br />
+           관리자에 의해 부득이하게 서비스 이용이 제한될 수 있습니다.
+         </p>
       </div>
 
       {/* Footer Nav */}

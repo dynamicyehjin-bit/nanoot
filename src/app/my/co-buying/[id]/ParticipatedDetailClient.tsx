@@ -11,6 +11,7 @@ interface DetailOption {
   name: string;
   price: number;
   quantity: number;
+  maxAvailable: number; // current quantity + option remain quantity
 }
 
 interface ParticipatedDetailClientProps {
@@ -24,10 +25,11 @@ interface ParticipatedDetailClientProps {
     currentQuantity: number;
     deadline: string;
     buildingId: string;
+    remainingQuantity: number;
   };
 }
 
-export function ParticipatedDetailClient({ initialDetails, coBuyingInfo, joinerId }: ParticipatedDetailClientProps) {
+export function ParticipatedDetailClient({ initialDetails, coBuyingInfo }: ParticipatedDetailClientProps) {
   const [details, setDetails] = useState(initialDetails);
   const [toastMessage, setToastMessage] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
@@ -42,13 +44,12 @@ export function ParticipatedDetailClient({ initialDetails, coBuyingInfo, joinerI
 
   const handlePlus = (id: string) => {
     if (!isRecruiting) return;
-    setDetails(prev => prev.map(d => d.id === id ? { ...d, quantity: d.quantity + 1 } : d));
+    setDetails(prev => prev.map(d => d.id === id ? { ...d, quantity: Math.min(d.maxAvailable, d.quantity + 1) } : d));
   };
 
   const handleUpdate = async () => {
     setIsUpdating(true);
     try {
-      // Update each changed detail
       for (const d of details) {
         await supabase
           .from('joiner_product_details')
@@ -56,6 +57,9 @@ export function ParticipatedDetailClient({ initialDetails, coBuyingInfo, joinerI
           .eq('id', d.id);
       }
       setToastMessage('수량이 수정되었습니다.');
+      setTimeout(() => {
+        window.location.reload(); 
+      }, 1000);
     } catch (error) {
        console.error(error);
        setToastMessage('수정 중 오류가 발생했습니다.');
@@ -67,8 +71,7 @@ export function ParticipatedDetailClient({ initialDetails, coBuyingInfo, joinerI
   const totalCount = details.reduce((sum, d) => sum + d.quantity, 0);
   const totalPay = details.reduce((sum, d) => sum + d.quantity * d.price, 0);
 
-  // Check if modified
-  const isModified = JSON.stringify(initialDetails) !== JSON.stringify(details);
+  const isModified = JSON.stringify(initialDetails.map(d => d.quantity)) !== JSON.stringify(details.map(d => d.quantity));
 
   return (
     <>
@@ -85,18 +88,23 @@ export function ParticipatedDetailClient({ initialDetails, coBuyingInfo, joinerI
                
                {isRecruiting ? (
                  <div className="flex justify-between items-center mt-2">
-                   <span className="text-xs text-blue-500 font-medium bg-blue-50 px-2 py-1 rounded">수량 조절 가능</span>
+                   <div className="flex flex-col gap-1">
+                      <span className="text-xs text-blue-500 font-medium bg-blue-50 px-2 py-1 rounded w-fit">수량 조절 가능</span>
+                      <span className="text-[10px] text-gray-400 pl-1">최대 {opt.maxAvailable}개</span>
+                   </div>
                    <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden h-9">
                      <button 
                        onClick={() => handleMinus(opt.id)}
-                       className="w-9 h-full flex items-center justify-center text-gray-600 bg-gray-50 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                       className="w-9 h-full flex items-center justify-center text-gray-600 bg-gray-50 hover:bg-gray-100 disabled:opacity-30"
+                       disabled={opt.quantity <= 1}
                      >
                        -
                      </button>
                      <span className="w-10 text-center text-sm font-semibold">{opt.quantity}</span>
                      <button 
                        onClick={() => handlePlus(opt.id)}
-                       className="w-9 h-full flex items-center justify-center text-gray-600 bg-gray-50 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                       className="w-9 h-full flex items-center justify-center text-gray-600 bg-gray-50 hover:bg-gray-100 disabled:opacity-30"
+                       disabled={opt.quantity >= opt.maxAvailable}
                      >
                        +
                      </button>
@@ -136,7 +144,7 @@ export function ParticipatedDetailClient({ initialDetails, coBuyingInfo, joinerI
                </Button>
             ) : (
                <Button className="flex-1 bg-gray-300 pointer-events-none" disabled>
-                 모집 중 (D-3)
+                 모집 중 - 남은 수량 {coBuyingInfo.remainingQuantity}개
                </Button>
             )}
           </>
@@ -144,12 +152,12 @@ export function ParticipatedDetailClient({ initialDetails, coBuyingInfo, joinerI
         
         {coBuyingInfo.status === 'PAYMENT_WAITING' && (
           <Button className="w-full bg-yellow-400 text-yellow-900 hover:bg-yellow-500" onClick={() => alert('오픈채팅방으로 이동합니다.')}>
-            입금하기 (오픈채팅)
+            입금하기 (오픈채팅 이동)
           </Button>
         )}
         
         {coBuyingInfo.status === 'ORDER_IN_PROGRESS' && (
-          <Button className="w-full bg-blue-600 hover:bg-blue-700 pointer-events-none" disabled>
+          <Button className="w-full bg-blue-600/10 text-blue-600 hover:bg-blue-600/10 pointer-events-none border border-blue-100" disabled>
             주문 진행 중
           </Button>
         )}
@@ -161,7 +169,7 @@ export function ParticipatedDetailClient({ initialDetails, coBuyingInfo, joinerI
         )}
         
         {coBuyingInfo.status === 'COMPLETED' && (
-          <Button className="w-full bg-gray-300 text-gray-600 pointer-events-none" disabled>
+          <Button className="w-full bg-gray-100 text-gray-400 pointer-events-none" disabled>
             완료됨
           </Button>
         )}
