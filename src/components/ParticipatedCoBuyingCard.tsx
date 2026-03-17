@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
+import { CoBuyingTimeline } from '@/components/common/CoBuyingTimeline';
 
 export interface ParticipatedCoBuyingCardProps {
   id: string;
@@ -17,7 +18,7 @@ const statusConfig: Record<string, { label: string; description: string; colorCl
   RECRUITING: { 
     label: '모집중', 
     description: '다른 신청자들을 모집하고 있어요. 모집 완료까지 수량이 조금 남았어요!', 
-    colorClass: 'bg-green-100 text-green-700' 
+    colorClass: 'bg-[#84CC16]/10 text-[#84CC16]' 
   },
   PAYMENT_WAITING: { 
     label: '결제대기', 
@@ -68,14 +69,14 @@ export function ParticipatedCoBuyingCard({
     : config.description;
 
   return (
-    <div className="bg-white border-b border-gray-100 p-5 flex flex-col gap-4">
+    <div className="bg-white border-b border-gray-100 p-5 flex flex-col">
       <div className="flex gap-4">
         {/* Thumbnail */}
-        <div className="w-20 h-20 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
+        <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
           {thumbnailUrl ? (
             <img src={thumbnailUrl} alt={title} className="w-full h-full object-cover" />
           ) : (
-            <span className="text-gray-400 text-xs">No Image</span>
+            <span className="text-gray-400 text-xs text-center">No Image</span>
           )}
         </div>
 
@@ -86,24 +87,33 @@ export function ParticipatedCoBuyingCard({
               {config.label}
             </span>
           </div>
-          <h3 className="font-bold text-[16px] leading-tight text-gray-900 line-clamp-2">
+          <h3 className="font-bold text-[15px] leading-tight text-gray-900 line-clamp-2">
             {title}
           </h3>
-          <p className="text-[12px] text-gray-500 leading-normal">
-            {description}
-          </p>
         </div>
       </div>
 
+      {/* Timeline */}
+      <div className="mt-2 px-1">
+        <CoBuyingTimeline status={status} />
+      </div>
+
+      {/* Status Guide Text */}
+      <p className={`text-[12px] leading-normal font-medium mb-4 ${
+        status === 'RECRUITING_FAILED' || status === 'CANCELLED' ? 'text-red-500' : 'text-[#84CC16]'
+      }`}>
+        {description}
+      </p>
+
       <div className="bg-gray-50 rounded-lg p-3 flex justify-between items-center">
         <div className="flex flex-col gap-0.5">
-           <span className="text-[11px] text-gray-400">내 신청 내역</span>
+           <span className="text-[11px] text-gray-400 font-medium">내 신청 내역</span>
            <span className="text-[13px] font-bold text-gray-700">
              {myQuantity}개 / ₩{myTotalPay.toLocaleString()}
            </span>
         </div>
         <Link href={`/my/co-buying/${id}`}>
-           <Button variant="outline" size="sm" className="h-8 text-[12px] font-bold border-gray-200 text-gray-600 bg-white">
+           <Button variant="outline" size="sm" className="h-8 text-[12px] font-bold border-gray-200 text-gray-600 bg-white hover:bg-gray-50">
              자세히 보기
            </Button>
         </Link>
@@ -111,3 +121,4 @@ export function ParticipatedCoBuyingCard({
     </div>
   );
 }
+
