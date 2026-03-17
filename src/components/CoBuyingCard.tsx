@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export interface CoBuyingCardProps {
   id: string;
@@ -53,7 +54,7 @@ export function CoBuyingCard({
         {/* Thumbnail */}
         <div className="w-24 h-24 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0 flex items-center justify-center relative">
           {thumbnailUrl ? (
-            <img src={thumbnailUrl} alt={title} className="w-full h-full object-cover" />
+            <Image src={thumbnailUrl} alt={title} width={96} height={96} className="w-full h-full object-cover" />
           ) : (
             <span className="text-gray-400 text-sm">No Image</span>
           )}

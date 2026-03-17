@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { BottomNav } from '@/components/BottomNav';
-import { ParticipatedCoBuyingCard } from '@/components/ParticipatedCoBuyingCard';
+import { ParticipatedCoBuyingCard, ParticipatedCoBuyingCardProps } from '@/components/ParticipatedCoBuyingCard';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 
@@ -36,7 +36,21 @@ export default async function MyCoBuyingPage() {
     console.error('Error fetching participations:', error);
   }
 
-  const items = await Promise.all((participationData || []).map(async (p: any) => {
+  interface Participation {
+    id: string;
+    joiner_total_pay: number;
+    joiner_total_quantity: number;
+    co_buyings: {
+      id: string;
+      title: string;
+      status: string;
+      total_price: number;
+      total_quantity: number;
+      deadline: string;
+    } | null;
+  }
+
+  const items = await Promise.all((participationData as unknown as Participation[] || []).map(async (p) => {
     const cb = p.co_buyings;
     if (!cb) return null;
 
@@ -62,7 +76,18 @@ export default async function MyCoBuyingPage() {
     };
   }));
 
-  const filteredItems = items.filter(Boolean) as any[];
+  interface FormattedItem {
+    participationId: string;
+    id: string;
+    title: string;
+    status: string;
+    myQuantity: number;
+    myTotalPay: number;
+    remainingQuantity: number;
+    thumbnailUrl: string;
+  }
+
+  const filteredItems = items.filter((item): item is FormattedItem => item !== null);
 
   // Grouping logic
   const ONGOING_STATUSES = ['RECRUITING', 'PAYMENT_WAITING', 'ORDER_IN_PROGRESS', 'READY_FOR_PICKUP'];
@@ -108,7 +133,7 @@ export default async function MyCoBuyingPage() {
                 key={item.id}
                 id={item.id}
                 title={item.title}
-                status={item.status}
+                status={item.status as ParticipatedCoBuyingCardProps['status']}
                 thumbnailUrl={item.thumbnailUrl}
                 myQuantity={item.myQuantity}
                 myTotalPay={item.myTotalPay}
@@ -129,7 +154,7 @@ export default async function MyCoBuyingPage() {
                 key={item.id}
                 id={item.id}
                 title={item.title}
-                status={item.status}
+                status={item.status as ParticipatedCoBuyingCardProps['status']}
                 thumbnailUrl={item.thumbnailUrl}
                 myQuantity={item.myQuantity}
                 myTotalPay={item.myTotalPay}

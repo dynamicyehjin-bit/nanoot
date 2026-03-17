@@ -34,7 +34,6 @@ export function CoBuyingTimeline({ status }: CoBuyingTimelineProps) {
         {STAGES.map((stage, index) => {
           const isCompleted = !isFailed && index < currentStageIndex;
           const isCurrent = !isFailed && index === currentStageIndex;
-          const isPending = isFailed || index > currentStageIndex;
 
           return (
             <div key={stage.id} className="relative z-10 flex flex-col items-center">

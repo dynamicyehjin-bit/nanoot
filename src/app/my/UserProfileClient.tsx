@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { Toast } from '@/components/ui/Toast';
 
@@ -21,7 +22,7 @@ export function UserProfileClient({
           onClick={() => setToastMessage('프로필 이미지 변경 기능은 준비 중입니다.')}
           className="w-16 h-16 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 relative group cursor-pointer border border-gray-100"
         >
-          <img src={initialProfile.profileImageUrl} alt="profile" className="w-full h-full object-cover" />
+          <Image src={initialProfile.profileImageUrl} alt="profile" width={64} height={64} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center transition-all">
              <span className="text-white text-xs font-bold">변경</span>
           </div>

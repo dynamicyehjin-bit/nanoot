@@ -7,15 +7,20 @@ export function Toast({ message, onClose }: { message: string, onClose: () => vo
 
   useEffect(() => {
     if (message) {
-      // Use a small delay or just let it render naturally
-      // To avoid the lint error for "direct setState in effect" 
-      // where it's redundant, we can ensure it's handled as a response to the prop change.
-      setIsVisible(true);
-      const timer = setTimeout(() => {
+      // Use a small delay to trigger the animation transition correctly after mounting
+      const showTimer = setTimeout(() => {
+        setIsVisible(true);
+      }, 10);
+
+      const hideTimer = setTimeout(() => {
         setIsVisible(false);
         setTimeout(onClose, 300);
       }, 2500);
-      return () => clearTimeout(timer);
+
+      return () => {
+        clearTimeout(showTimer);
+        clearTimeout(hideTimer);
+      };
     }
   }, [message, onClose]);
 

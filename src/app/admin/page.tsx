@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 type CoBuyingStatus = 'RECRUITING' | 'PAYMENT_WAITING' | 'ORDER_IN_PROGRESS' | 'READY_FOR_PICKUP' | 'COMPLETED' | 'CANCELLED' | 'RECRUITING_FAILED';
@@ -51,13 +50,8 @@ export default function AdminDashboard() {
   const [coBuyings, setCoBuyings] = useState<CoBuying[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient();
-  const router = useRouter();
 
-  useEffect(() => {
-    fetchCoBuyings();
-  }, [activeTab]);
-
-  const fetchCoBuyings = async () => {
+  const fetchCoBuyings = useCallback(async () => {
     setIsLoading(true);
     let query = supabase.from('co_buyings').select('*, joiners(count)');
 
@@ -70,14 +64,31 @@ export default function AdminDashboard() {
     if (error) {
       console.error('Error fetching co-buyings:', error);
     } else {
-      const formattedData = data.map((item: any) => ({
+      interface RawCoBuying {
+        id: string;
+        title: string;
+        category: string;
+        status: CoBuyingStatus;
+        deadline: string;
+        created_at: string;
+        image_url?: string;
+        joiners: { count: number }[];
+      }
+      const formattedData = (data as unknown as RawCoBuying[]).map((item) => ({
         ...item,
         joiners_count: item.joiners?.[0]?.count || 0,
       }));
       setCoBuyings(formattedData);
     }
     setIsLoading(false);
-  };
+  }, [activeTab, supabase]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchCoBuyings();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [activeTab, fetchCoBuyings]);
 
   const handleStatusUpdate = async (id: string, currentStatus: string) => {
     const nextStatus = STATUS_FLOW[currentStatus];

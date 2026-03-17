@@ -1,19 +1,14 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useCallback } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { ChevronLeft, X, Plus, Minus, Camera } from 'lucide-react';
+import { ChevronLeft, Camera } from 'lucide-react';
 
 const CATEGORIES = ['전체', '생필품', '과일·신선식품', '가공품', '냉동식품'];
-const FEES = [
-  { label: '5%', value: 0.05 },
-  { label: '10%', value: 0.10 },
-  { label: '15%', value: 0.15 },
-  { label: '직접입력', value: 'manual' },
-];
 
 export default function EditCoBuyingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -44,50 +39,58 @@ export default function EditCoBuyingPage({ params }: { params: Promise<{ id: str
     status: '',
   });
 
+  const fetchData = useCallback(async () => {
+    // Fetch Buildings
+    const { data: bData } = await supabase.from('buildings').select('id, name');
+    if (bData) setBuildings(bData);
+
+    // Fetch Co-buying
+    const { data: cb, error: cbError } = await supabase
+      .from('co_buyings')
+      .select('*, product_options(*)')
+      .eq('id', id)
+      .single();
+
+    if (cbError) {
+      alert('데이터를 불러오지 못했습니다.');
+      router.push('/admin');
+      return;
+    }
+
+    interface RawProductOption {
+      id: string;
+      name: string;
+      quantity: number;
+      unit_description?: string;
+    }
+
+    setFormData({
+      buildingId: cb.building_id,
+      category: cb.category || '전체',
+      title: cb.title,
+      link: '', // Not stored in DB yet
+      image: null,
+      previewUrl: cb.image_url || '',
+      price: cb.total_price,
+      feeType: 0.10, // Placeholder calculation
+      manualFee: 0,
+      unit: cb.product_options?.[0]?.unit_description || '',
+      options: (cb.product_options as RawProductOption[])?.map((opt) => ({
+        id: opt.id,
+        name: opt.name,
+        quantity: opt.quantity,
+      })) || [{ id: '', name: '', quantity: 1 }],
+      hostQuantity: 1, // Placeholder
+      minQuantity: 1,
+      deadline: new Date(cb.deadline).toISOString().slice(0, 16),
+      status: cb.status,
+    });
+    setIsLoading(false);
+  }, [id, router, supabase]);
+
   useEffect(() => {
-    const fetchData = async () => {
-      // Fetch Buildings
-      const { data: bData } = await supabase.from('buildings').select('id, name');
-      if (bData) setBuildings(bData);
-
-      // Fetch Co-buying
-      const { data: cb, error: cbError } = await supabase
-        .from('co_buyings')
-        .select('*, product_options(*)')
-        .eq('id', id)
-        .single();
-
-      if (cbError) {
-        alert('데이터를 불러오지 못했습니다.');
-        router.push('/admin');
-        return;
-      }
-
-      setFormData({
-        buildingId: cb.building_id,
-        category: cb.category || '전체',
-        title: cb.title,
-        link: '', // Not stored in DB yet
-        image: null,
-        previewUrl: cb.image_url || '',
-        price: cb.total_price,
-        feeType: 0.10, // Placeholder calculation
-        manualFee: 0,
-        unit: cb.product_options?.[0]?.unit_description || '',
-        options: cb.product_options?.map((opt: any) => ({
-          id: opt.id,
-          name: opt.name,
-          quantity: opt.quantity,
-        })) || [{ id: '', name: '', quantity: 1 }],
-        hostQuantity: 1, // Placeholder
-        minQuantity: 1,
-        deadline: new Date(cb.deadline).toISOString().slice(0, 16),
-        status: cb.status,
-      });
-      setIsLoading(false);
-    };
     fetchData();
-  }, [id]);
+  }, [fetchData]);
 
   const handleNext = () => setStep(2);
 
@@ -102,24 +105,6 @@ export default function EditCoBuyingPage({ params }: { params: Promise<{ id: str
     }
   };
 
-  const addOption = () => {
-    setFormData({
-      ...formData,
-      options: [...formData.options, { id: '', name: '', quantity: 1 }],
-    });
-  };
-
-  const removeOption = (index: number) => {
-    const newOptions = [...formData.options];
-    newOptions.splice(index, 1);
-    setFormData({ ...formData, options: newOptions });
-  };
-
-  const updateOption = (index: number, field: string, value: any) => {
-    const newOptions = [...formData.options];
-    newOptions[index] = { ...newOptions[index], [field]: value };
-    setFormData({ ...formData, options: newOptions });
-  };
 
   const calculatedFee = formData.feeType === 'manual' ? formData.manualFee : Math.floor(formData.price * formData.feeType);
   const totalQuantity = formData.options.reduce((sum, opt) => sum + opt.quantity, 0);
@@ -167,8 +152,9 @@ export default function EditCoBuyingPage({ params }: { params: Promise<{ id: str
 
       alert('수정되었습니다.');
       router.push('/admin');
-    } catch (error: any) {
-      alert('오류: ' + error.message);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      alert('오류: ' + message);
     } finally {
       setIsSubmitting(false);
     }
@@ -237,7 +223,7 @@ export default function EditCoBuyingPage({ params }: { params: Promise<{ id: str
           <section>
             <label className="block text-sm font-bold text-gray-900 mb-2">대표 이미지</label>
             <label className="w-full aspect-square bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center relative overflow-hidden">
-              {formData.previewUrl ? <img src={formData.previewUrl} className="w-full h-full object-cover" /> : <Camera className="text-gray-400" size={32} />}
+              {formData.previewUrl ? <Image src={formData.previewUrl} alt="Preview" width={400} height={400} className="w-full h-full object-cover" /> : <Camera className="text-gray-400" size={32} />}
               <input type="file" className="hidden" onChange={handleImageChange} />
             </label>
           </section>

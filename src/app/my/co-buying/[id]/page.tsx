@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ParticipatedDetailClient } from './ParticipatedDetailClient';
+import Image from 'next/image';
 
 export default async function ParticipatedDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -53,8 +54,19 @@ export default async function ParticipatedDetail({ params }: { params: Promise<{
   const currentTotalQuantity = allJoiners?.reduce((sum, j) => sum + j.joiner_total_quantity, 0) || 0;
   const remainingQuantity = Math.max(0, detailData.total_quantity - currentTotalQuantity);
 
+  interface JoinerDetail {
+    id: string;
+    joiner_quantity: number;
+    product_options: {
+      id: string;
+      name: string;
+      price: number;
+      remain_quantity?: number;
+    };
+  }
+
   // Format the data for the client component
-  const initialDetails = joinerDetails.map((detail: any) => ({
+  const initialDetails = (joinerDetails as unknown as JoinerDetail[]).map((detail) => ({
     id: detail.id,
     optionId: detail.product_options.id,
     name: detail.product_options.name,
@@ -66,7 +78,7 @@ export default async function ParticipatedDetail({ params }: { params: Promise<{
   const coBuyingInfo = {
     id: detailData.id,
     title: detailData.title,
-    status: detailData.status as any,
+    status: detailData.status as 'RECRUITING' | 'PAYMENT_WAITING' | 'ORDER_IN_PROGRESS' | 'READY_FOR_PICKUP' | 'COMPLETED' | 'CANCELLED' | 'RECRUITING_FAILED',
     totalQuantity: detailData.total_quantity,
     currentQuantity: currentTotalQuantity,
     remainingQuantity: remainingQuantity,
@@ -94,7 +106,7 @@ export default async function ParticipatedDetail({ params }: { params: Promise<{
       {/* Participated Co-Buying Summary */}
       <div className="bg-white p-5 flex gap-4 border-b border-gray-100">
         <div className="w-20 h-20 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0">
-           <img src={coBuyingInfo.thumbnailUrl} alt={coBuyingInfo.title} className="w-full h-full object-cover" />
+           <Image src={coBuyingInfo.thumbnailUrl} alt={coBuyingInfo.title} width={80} height={80} className="w-full h-full object-cover" />
         </div>
         <div className="flex flex-col justify-center">
           <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-sm w-fit mb-1">

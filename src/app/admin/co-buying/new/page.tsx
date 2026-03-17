@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { ChevronLeft, X, Plus, Minus, Camera, Check } from 'lucide-react';
-import Link from 'next/link';
+import { ChevronLeft, X, Plus, Minus, Camera } from 'lucide-react';
+import Image from 'next/image';
 
 const CATEGORIES = ['전체', '생필품', '과일·신선식품', '가공품', '냉동식품'];
 const FEES = [
@@ -47,13 +47,14 @@ export default function NewCoBuyingPage() {
     deadline: '',
   });
 
+  const fetchBuildings = useCallback(async () => {
+    const { data } = await supabase.from('buildings').select('id, name');
+    if (data) setBuildings(data);
+  }, [supabase]);
+
   useEffect(() => {
-    const fetchBuildings = async () => {
-      const { data } = await supabase.from('buildings').select('id, name');
-      if (data) setBuildings(data);
-    };
     fetchBuildings();
-  }, []);
+  }, [fetchBuildings]);
 
   const handleNext = () => {
     if (step === 1) {
@@ -90,7 +91,7 @@ export default function NewCoBuyingPage() {
     setFormData({ ...formData, options: newOptions });
   };
 
-  const updateOption = (index: number, field: keyof Option, value: any) => {
+  const updateOption = (index: number, field: keyof Option, value: string | number) => {
     const newOptions = [...formData.options];
     newOptions[index] = { ...newOptions[index], [field]: value };
     setFormData({ ...formData, options: newOptions });
@@ -119,7 +120,7 @@ export default function NewCoBuyingPage() {
       if (formData.image) {
         const fileExt = formData.image.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('cobuying-images')
           .upload(fileName, formData.image);
 
@@ -168,9 +169,10 @@ export default function NewCoBuyingPage() {
 
       alert('공구가 등록되었습니다.');
       router.push('/admin');
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       console.error(error);
-      alert('등록 중 오류가 발생했습니다: ' + error.message);
+      alert('등록 중 오류가 발생했습니다: ' + message);
     } finally {
       setIsSubmitting(false);
     }
@@ -238,7 +240,7 @@ export default function NewCoBuyingPage() {
             <label className="block text-sm font-bold text-gray-900 mb-2">대표 이미지</label>
             <label className="w-full aspect-square bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 cursor-pointer relative overflow-hidden">
               {formData.previewUrl ? (
-                <img src={formData.previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                <Image src={formData.previewUrl} alt="Preview" width={400} height={400} className="w-full h-full object-cover" />
               ) : (
                 <>
                   <Camera className="text-gray-400" size={32} />
@@ -272,7 +274,7 @@ export default function NewCoBuyingPage() {
                 {FEES.map(fee => (
                   <button
                     key={fee.label}
-                    onClick={() => setFormData({ ...formData, feeType: fee.value as any })}
+                    onClick={() => setFormData({ ...formData, feeType: fee.value as number | 'manual' })}
                     className={`h-11 rounded-xl text-sm font-medium border transition-colors ${
                       formData.feeType === fee.value
                         ? 'bg-gray-900 text-white border-gray-900'

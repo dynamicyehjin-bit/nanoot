@@ -113,9 +113,10 @@ export default function JoinCoBuying({ params }: { params: Promise<{ buildingId:
 
       alert('참여가 완료되었습니다!');
       router.push(`/${buildingId}/co-buying/${coBuyingId}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error joining co-buying:', err);
-      if (err.code === '23505') {
+      const errorCode = (err as { code?: string })?.code;
+      if (errorCode === '23505') {
         alert('이미 참여 중인 공구입니다.');
       } else {
         alert('참여 신청 중 오류가 발생했습니다. 다시 시도해주세요.');

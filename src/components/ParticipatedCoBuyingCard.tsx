@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { CoBuyingTimeline } from '@/components/common/CoBuyingTimeline';
 
+import Image from 'next/image';
+
 export interface ParticipatedCoBuyingCardProps {
   id: string;
   title: string;
@@ -74,7 +76,7 @@ export function ParticipatedCoBuyingCard({
         {/* Thumbnail */}
         <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
           {thumbnailUrl ? (
-            <img src={thumbnailUrl} alt={title} className="w-full h-full object-cover" />
+            <Image src={thumbnailUrl} alt={title} width={64} height={64} className="w-full h-full object-cover" />
           ) : (
             <span className="text-gray-400 text-xs text-center">No Image</span>
           )}

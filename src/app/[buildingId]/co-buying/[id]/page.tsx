@@ -1,11 +1,12 @@
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 
 export default async function CoBuyingDetail({ params }: { params: Promise<{ buildingId: string, id: string }> }) {
   const { buildingId, id } = await params;
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  await supabase.auth.getUser();
   
   const { data: detailData, error } = await supabase
     .from('co_buyings')
@@ -56,7 +57,7 @@ export default async function CoBuyingDetail({ params }: { params: Promise<{ bui
       {/* ---------- 2. 썸네일 영역 ---------- */}
       <div className="w-full aspect-[4/3] bg-gray-200 relative">
         {detail.thumbnailUrl ? (
-          <img src={detail.thumbnailUrl} alt={detail.title} className="w-full h-full object-cover" />
+          <Image src={detail.thumbnailUrl} alt={detail.title} width={400} height={300} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400">
             이미지 없음
@@ -66,8 +67,8 @@ export default async function CoBuyingDetail({ params }: { params: Promise<{ bui
 
       {/* ---------- 3. 작성자(방장) 정보 ---------- */}
       <div className="bg-white px-5 py-4 border-b border-gray-100 flex items-center gap-3">
-        <div className="w-11 h-11 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
-          <img src="https://i.pravatar.cc/150?u=a042581f4e29026024d" alt="profile" className="w-full h-full object-cover" />
+        <div className="w-11 h-11 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 relative">
+          <Image src="https://i.pravatar.cc/150?u=a042581f4e29026024d" alt="profile" fill className="object-cover" />
         </div>
         <div>
           <div className="font-semibold text-gray-900 text-[15px]">나눗이123</div>
