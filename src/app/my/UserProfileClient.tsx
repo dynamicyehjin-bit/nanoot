@@ -22,7 +22,13 @@ export function UserProfileClient({
           onClick={() => setToastMessage('프로필 이미지 변경 기능은 준비 중입니다.')}
           className="w-16 h-16 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 relative group cursor-pointer border border-gray-100"
         >
-          <Image src={initialProfile.profileImageUrl} alt="profile" width={64} height={64} className="w-full h-full object-cover" />
+          {initialProfile.profileImageUrl ? (
+            <Image src={initialProfile.profileImageUrl} alt="profile" width={64} height={64} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+          )}
           <div className="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center transition-all">
              <span className="text-white text-xs font-bold">변경</span>
           </div>

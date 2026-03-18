@@ -47,7 +47,7 @@ export default async function MyPage() {
         <UserProfileClient 
           initialProfile={{
             nickname: profile?.nickname || '이름없음',
-            profileImageUrl: profile?.profile_image_url || 'https://i.pravatar.cc/150?u=' + user.id,
+            profileImageUrl: profile?.profile_image_url || '',
             buildingName: isBuildingVerified ? building?.name : null,
           }}
           isBuildingVerified={isBuildingVerified}
