@@ -6,7 +6,11 @@ import { ParticipatedCoBuyingCard, ParticipatedCoBuyingCardProps } from '@/compo
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 
-export default async function MyCoBuyingPage({ searchParams }: { searchParams: { tab?: string } }) {
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default async function MyCoBuyingPage(props: PageProps) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -14,6 +18,7 @@ export default async function MyCoBuyingPage({ searchParams }: { searchParams: {
     return null;
   }
 
+  const searchParams = await props.searchParams;
   const tab = searchParams.tab || 'participated'; // 'participated' | 'hosted'
 
   let ongoingItems: any[] = [];
