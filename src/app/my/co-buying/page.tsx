@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic';
 
 import { createClient } from '@/lib/supabase/server';
-import { BottomNav } from '@/components/BottomNav';
 import { ParticipatedCoBuyingCard, ParticipatedCoBuyingCardProps } from '@/components/ParticipatedCoBuyingCard';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
@@ -210,8 +209,6 @@ export default async function MyCoBuyingPage(props: PageProps) {
           </>
         )}
       </div>
-
-      <BottomNav />
     </div>
   );
 }

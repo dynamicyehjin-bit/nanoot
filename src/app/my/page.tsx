@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
-import { BottomNav } from '@/components/BottomNav';
 import { UserProfileClient } from './UserProfileClient';
 import { NotificationToggle } from './NotificationToggle';
 import { Info, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
@@ -81,7 +80,6 @@ export default async function MyPage() {
          <button className="text-[14px] text-gray-400 text-left w-fit hover:underline">회원 탈퇴</button>
       </div>
 
-      {/* Footer Terms */}
       <div className="p-6 pb-24 flex flex-col gap-2">
          <div className="flex gap-4 text-xs text-gray-400 font-medium">
             <Link href="/terms" className="hover:underline text-gray-500">이용약관</Link>
@@ -93,9 +91,6 @@ export default async function MyPage() {
            관리자에 의해 부득이하게 서비스 이용이 제한될 수 있습니다.
          </p>
       </div>
-
-      {/* Footer Nav */}
-      <BottomNav />
     </div>
   );
 }

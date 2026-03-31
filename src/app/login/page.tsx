@@ -1,5 +1,9 @@
-import { redirect } from 'next/navigation';
+import { Intro } from '@/components/Intro';
 
 export default function LoginPage() {
-  redirect('/');
+  return (
+    <div className="flex flex-col flex-1 h-screen bg-white">
+      <Intro />
+    </div>
+  );
 }
