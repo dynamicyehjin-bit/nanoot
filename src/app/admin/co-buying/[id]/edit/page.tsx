@@ -139,8 +139,8 @@ export default function EditCoBuyingPage({ params }: { params: Promise<{ id: str
       if (formData.image) {
         const fileExt = formData.image.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
-        await supabase.storage.from('co-buying-images').upload(fileName, formData.image);
-        const { data: { publicUrl } } = supabase.storage.from('co-buying-images').getPublicUrl(fileName);
+        await supabase.storage.from('cobuying-images').upload(fileName, formData.image);
+        const { data: { publicUrl } } = supabase.storage.from('cobuying-images').getPublicUrl(fileName);
         imageUrl = publicUrl;
       }
 

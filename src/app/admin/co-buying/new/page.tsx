@@ -123,13 +123,13 @@ export default function NewCoBuyingPage() {
         const fileExt = formData.image.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
         const { error: uploadError } = await supabase.storage
-          .from('co-buying-images')
+          .from('cobuying-images')
           .upload(fileName, formData.image);
 
         if (uploadError) throw uploadError;
         
         const { data: { publicUrl } } = supabase.storage
-          .from('co-buying-images')
+          .from('cobuying-images')
           .getPublicUrl(fileName);
         
         imageUrl = publicUrl;
