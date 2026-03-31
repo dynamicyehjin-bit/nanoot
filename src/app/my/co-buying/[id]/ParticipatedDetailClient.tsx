@@ -150,7 +150,10 @@ export function ParticipatedDetailClient({ initialDetails, joinerId, coBuyingInf
       </div>
 
       {/* Bottom CTA */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white border-t border-gray-100 p-4 pb-8 z-30 flex gap-2">
+      <div 
+        style={{ bottom: 'var(--gnb-total-height)' }}
+        className="fixed left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white border-t border-gray-100 p-4 z-30 flex gap-2"
+      >
         {isRecruiting ? (
           <>
             <Button

@@ -174,7 +174,10 @@ export function JoinBottomSheetClient({ coBuyingId, buildingId, buildingName, op
   return (
     <>
       {/* Detail Page Sticky Bottom Bar */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white border-t border-gray-100 p-4 pb-8 flex items-center justify-between z-30 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.15)]">
+      <div 
+        style={{ bottom: 'var(--gnb-total-height)' }}
+        className="fixed left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white border-t border-gray-100 p-4 flex items-center justify-between z-30 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.15)]"
+      >
         <Button
           onClick={handleOpen}
           className="w-full h-[52px] !bg-black !text-white hover:!bg-gray-800 rounded-xl font-bold text-[16px] flex items-center justify-center transition-all shadow-md active:scale-95"
