@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export interface CoBuyingCardProps {
   id: string;
@@ -10,6 +11,7 @@ export interface CoBuyingCardProps {
   deadline: string;
   thumbnailUrl?: string;
   buildingId?: string;
+  href?: string;
 }
 
 const statusMap: Record<string, { label: string; colorClass: string }> = {
@@ -32,6 +34,7 @@ export function CoBuyingCard({
   deadline,
   thumbnailUrl,
   buildingId = '1',
+  href,
 }: CoBuyingCardProps) {
   const currentStatus = statusMap[status] || { label: status, colorClass: 'bg-gray-100 text-gray-700' };
   
@@ -43,14 +46,15 @@ export function CoBuyingCard({
   const isExpired = diffTime < 0;
 
   const dDayText = isExpired ? '마감' : diffDays === 0 ? 'D-Day' : `D-${diffDays}`;
+  const linkHref = href || `/${buildingId}/co-buying/${id}`;
   
   return (
-    <Link href={`/${buildingId}/co-buying/${id}`} className="block">
+    <Link href={linkHref} className="block">
       <div className="flex gap-4 p-4 border-b border-gray-100 bg-white hover:bg-gray-50 transition-colors">
         {/* Thumbnail */}
         <div className="w-24 h-24 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0 flex items-center justify-center relative">
           {thumbnailUrl ? (
-            <img src={thumbnailUrl} alt={title} className="w-full h-full object-cover" />
+            <Image src={thumbnailUrl} alt={title} width={96} height={96} className="w-full h-full object-cover" />
           ) : (
             <span className="text-gray-400 text-sm">No Image</span>
           )}

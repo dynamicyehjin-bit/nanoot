@@ -1,167 +1,125 @@
-'use client';
+export const dynamic = 'force-dynamic';
 
-import { useState, useEffect, useRef } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
+import Link from 'next/link';
+import { BottomNav } from '@/components/BottomNav';
+import { UserProfileClient } from './UserProfileClient';
+import { NotificationToggle } from './NotificationToggle';
+import { Info, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
 
-interface UserProfile {
-  id: string;
-  name: string;
-  nickname: string;
-  email: string;
-  profile_image_url?: string;
-  created_at: string;
-  building_id?: string;
-  buildings?: { name: string; address: string } | null;
-}
+export default async function MyPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-export default function MyPage() {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [nickname, setNickname] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const router = useRouter();
-  const supabase = createClient();
-
-  useEffect(() => {
-    (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push('/login'); return; }
-
-      const { data } = await supabase
-        .from('users')
-        .select('*, buildings(name, address)')
-        .eq('id', user.id)
-        .single();
-
-      if (data) {
-        setProfile(data);
-        setNickname(data.nickname || '');
-      }
-    })();
-  }, []);
-
-  const handleSaveNickname = async () => {
-    if (!profile || !nickname.trim()) return;
-    setIsSaving(true);
-
-    const { error } = await supabase
-      .from('users')
-      .update({ nickname: nickname.trim() })
-      .eq('id', profile.id);
-
-    if (!error) {
-      setProfile(prev => prev ? { ...prev, nickname: nickname.trim() } : prev);
-      setMessage('닉네임이 변경되었습니다!');
-    } else {
-      setMessage('저장 중 오류가 발생했습니다.');
-    }
-    setIsSaving(false);
-    setTimeout(() => setMessage(null), 2000);
-  };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push('/login');
-  };
-
-  if (!profile) {
-    return <div className="flex flex-1 items-center justify-center text-gray-400 text-sm">로딩 중...</div>;
+  if (!user) {
+    return null;
   }
 
+  // Get user profile data and building info
+  const { data: profile } = await supabase
+    .from('users')
+    .select(`
+      id,
+      name,
+      nickname,
+      profile_image_url,
+      building_id,
+      buildings (
+        name,
+        open_chat_link
+      )
+    `)
+    .eq('id', user.id)
+    .single();
+
+  const isBuildingVerified = !!profile?.building_id;
+  const building = Array.isArray(profile?.buildings) ? profile.buildings[0] : profile?.buildings;
+
   return (
-    <div className="flex flex-col flex-1 bg-gray-50">
-      <header className="sticky top-0 bg-white/80 backdrop-blur-sm z-10 px-5 py-4 border-b border-gray-100">
-        <h1 className="text-xl font-bold">마이페이지</h1>
+    <div className="flex flex-col flex-1 pb-20 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <header className="sticky top-0 bg-white/80 backdrop-blur-md z-10 px-4 py-4 flex items-center justify-center border-b border-gray-100">
+        <h1 className="text-lg font-bold text-gray-900">마이나눗</h1>
       </header>
 
-      {/* 프로필 영역 */}
-      <div className="bg-white px-5 py-8 flex flex-col items-center border-b border-gray-100">
-        <div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden mb-3 flex items-center justify-center">
-          {profile.profile_image_url ? (
-            <img src={profile.profile_image_url} alt="프로필" className="w-full h-full object-cover" />
-          ) : (
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
-              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-          )}
-        </div>
-        <div className="font-bold text-gray-900 text-lg">{profile.nickname}</div>
-        <div className="text-sm text-gray-500">{profile.email}</div>
+      {/* Profile Card */}
+      <div className="bg-white p-5 mb-2 border-b border-gray-100">
+        <UserProfileClient 
+          initialProfile={{
+            nickname: profile?.nickname || '이름없음',
+            profileImageUrl: profile?.profile_image_url || '',
+            buildingName: isBuildingVerified ? building?.name : null,
+          }}
+          isBuildingVerified={isBuildingVerified}
+        />
       </div>
 
-      {/* 설정 섹션들 */}
-      <div className="flex flex-col gap-3 p-4">
+      {/* Menus */}
+      <div className="bg-white mb-2 border-b border-gray-100 border-t">
+        <div className="flex flex-col">
+          <NotificationToggle />
+          <MenuLink 
+             icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>} 
+             title="건물 단톡방" 
+             href={isBuildingVerified && building?.open_chat_link ? building.open_chat_link : '#'} 
+             target={isBuildingVerified && building?.open_chat_link ? '_blank' : undefined}
+             onClick={(!isBuildingVerified || !building?.open_chat_link) ? () => alert('등록된 건물 단톡방이 없습니다.') : undefined}
+           />
+          <MenuLink icon={<Info size={20} />} title="공지사항 / 서비스안내" href="/my/notices" />
+          <MenuLink icon={<HelpCircle size={20} />} title="문의하기" href="/my/contact" />
+        </div>
+      </div>
 
-        {/* 닉네임 변경 */}
-        <div className="bg-white rounded-2xl px-5 py-5 shadow-sm">
-          <div className="text-sm font-bold text-gray-700 mb-3">닉네임 변경</div>
-          <div className="flex gap-2">
-            <input
-              value={nickname}
-              onChange={e => setNickname(e.target.value)}
-              className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gray-900 transition-colors"
-              placeholder="새 닉네임 입력"
-              maxLength={20}
-            />
-            <button
-              onClick={handleSaveNickname}
-              disabled={isSaving}
-              className="px-4 py-3 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-700 transition-colors disabled:opacity-50"
-            >
-              저장
+      {/* Account Settings */}
+      <div className="bg-white px-5 py-4 flex flex-col gap-4 border-b border-gray-100">
+         <form action="/auth/signout" method="post">
+            <button type="submit" className="text-[15px] font-medium text-gray-600 flex items-center gap-2 hover:text-gray-900 transition-colors">
+               <LogOut size={18} />
+               로그아웃
             </button>
-          </div>
-          {message && <div className="text-xs text-blue-500 mt-2">{message}</div>}
-        </div>
-
-        {/* 건물 정보 */}
-        <div className="bg-white rounded-2xl px-5 py-5 shadow-sm">
-          <div className="text-sm font-bold text-gray-700 mb-3">내 건물 정보</div>
-          {profile.buildings ? (
-            <div className="text-sm text-gray-700">
-              <div className="font-medium">{(profile.buildings as any).name}</div>
-              <div className="text-gray-500 text-xs mt-1">{(profile.buildings as any).address}</div>
-            </div>
-          ) : (
-            <div className="text-sm text-gray-400">등록된 건물 없음</div>
-          )}
-          <button
-            onClick={() => router.push('/building/setup')}
-            className="mt-3 text-blue-500 text-xs font-medium hover:underline"
-          >
-            건물 변경하기 →
-          </button>
-        </div>
-
-        {/* 계정 정보 */}
-        <div className="bg-white rounded-2xl px-5 py-5 shadow-sm">
-          <div className="text-sm font-bold text-gray-700 mb-3">계정 정보</div>
-          <div className="space-y-2 text-sm text-gray-600">
-            <div className="flex justify-between">
-              <span className="text-gray-400">이름</span>
-              <span>{profile.name}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400">이메일</span>
-              <span>{profile.email}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400">가입일</span>
-              <span>{new Date(profile.created_at).toLocaleDateString()}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* 로그아웃 */}
-        <button
-          onClick={handleLogout}
-          className="w-full py-4 text-sm font-medium text-red-500 bg-white rounded-2xl border border-red-100 hover:bg-red-50 transition-colors shadow-sm"
-        >
-          로그아웃
-        </button>
+         </form>
+         <button className="text-[14px] text-gray-400 text-left w-fit hover:underline">회원 탈퇴</button>
       </div>
+
+      {/* Footer Terms */}
+      <div className="p-6 pb-24 flex flex-col gap-2">
+         <div className="flex gap-4 text-xs text-gray-400 font-medium">
+            <Link href="/terms" className="hover:underline text-gray-500">이용약관</Link>
+            <span className="text-gray-300">|</span>
+            <Link href="/privacy" className="hover:underline text-gray-500 font-bold">개인정보처리방침</Link>
+         </div>
+         <p className="text-[11px] text-gray-400 leading-relaxed">
+           나눗은 이웃 간의 신뢰를 바탕으로 하는 공동구매 나눔 서비스입니다.<br />
+           관리자에 의해 부득이하게 서비스 이용이 제한될 수 있습니다.
+         </p>
+      </div>
+
+      {/* Footer Nav */}
+      <BottomNav />
     </div>
+  );
+}
+
+function MenuLink({ icon, title, href, target, onClick }: { icon: React.ReactNode, title: string, href: string, target?: string, onClick?: () => void }) {
+  if (onClick) {
+    return (
+      <button onClick={onClick} className="flex justify-between items-center p-5 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 w-full text-left">
+        <div className="flex items-center gap-3 text-gray-800">
+          <span className="text-gray-500">{icon}</span>
+          <span className="text-[16px] font-medium">{title}</span>
+        </div>
+        <ChevronRight size={20} className="text-gray-300" />
+      </button>
+    );
+  }
+  
+  return (
+    <Link href={href} target={target} className="flex justify-between items-center p-5 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0">
+      <div className="flex items-center gap-3 text-gray-800">
+        <span className="text-gray-500">{icon}</span>
+        <span className="text-[16px] font-medium">{title}</span>
+      </div>
+      <ChevronRight size={20} className="text-gray-300" />
+    </Link>
   );
 }
