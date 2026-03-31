@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { createClient } from '@/lib/supabase/server';
 import { CoBuyingCard } from '@/components/CoBuyingCard';
-import { mockCoBuyings } from '@/lib/mock-data';
 import { GuestLanding } from '@/components/GuestLanding';
 import { cookies } from 'next/headers';
 import { BottomNav } from '@/components/BottomNav';
@@ -20,11 +19,14 @@ export default async function Home() {
   // 사용자 정보 더미 (건물 소속 확인용, 게스트의 경우 쿠키 확인)
   let userProfile = { building_id: user ? '1' : guestBuildingId || '1' };
 
-  // 실제 DB 연동 구문 대신 더미 데이터 사용
-  const items = mockCoBuyings.map(item => ({
-    ...item,
-    total_quantity: item.totalQuantity,
-  }));
+  // Supabase에서 해당 건물의 공동구매 리스트 조회
+  const { data: coBuyings } = await supabase
+    .from('co_buyings')
+    .select('*')
+    .eq('building_id', userProfile.building_id)
+    .order('created_at', { ascending: false });
+
+  const items = coBuyings || [];
 
   return (
     <div className="flex flex-col flex-1 pb-20">
@@ -61,10 +63,10 @@ export default async function Home() {
               title={item.title}
               category={item.category}
               status={item.status}
-              totalQuantity={item.total_quantity}
-              currentQuantity={0} 
+              totalQuantity={item.total_quantity || 0}
+              currentQuantity={item.current_quantity || 0} 
               deadline={item.deadline}
-              thumbnailUrl={'https://images.unsplash.com/photo-1590481845199-3543ebce321f?q=80&w=2670&auto=format&fit=crop'} 
+              thumbnailUrl={item.image_url || 'https://images.unsplash.com/photo-1590481845199-3543ebce321f?q=80&w=2670&auto=format&fit=crop'} 
             />
           ))
         )}
