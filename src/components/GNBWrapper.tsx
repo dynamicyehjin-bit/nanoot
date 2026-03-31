@@ -1,16 +1,20 @@
-import { createClient } from '@/lib/supabase/server';
+'use client';
+
+import { usePathname } from 'next/navigation';
 import { GNB } from '@/components/GNB';
 
-// 인증 페이지들(GNB 숨김)
 const NO_GNB_PATHS = ['/login', '/signup', '/building', '/auth'];
 
-export default async function GNBWrapper({ pathname }: { pathname: string }) {
+export function GNBWrapper({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const showGNB = !NO_GNB_PATHS.some(p => pathname.startsWith(p));
-  if (!showGNB) return null;
 
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  return <GNB />;
+  return (
+    <>
+      <div className={`flex flex-col flex-1 ${showGNB ? 'pb-16' : ''}`}>
+        {children}
+      </div>
+      {showGNB && <GNB />}
+    </>
+  );
 }

@@ -46,15 +46,7 @@ export default function BuildingCodePage() {
     setIsLoading(true);
     setError(null);
 
-    // 1. Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      setError('로그인 상태를 확인할 수 없습니다. 다시 로그인해주세요.');
-      setIsLoading(false);
-      return;
-    }
-
-    // 2. Validate invite code for the specific building
+    // 1. Validate invite code for the specific building FIRST
     const { data: buildingMatch, error: buildingError } = await supabase
       .from('buildings')
       .select('id')
@@ -68,24 +60,30 @@ export default function BuildingCodePage() {
       return;
     }
 
-    // 3. Update user's buildingId
-    const { error: updateError } = await supabase
-      .from('users')
-      .update({ building_id: buildingId })
-      .eq('id', user.id);
+    // 2. Handle user state depending on authentication
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (user) {
+      // Authenticated User: Update users table and Zustand
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ building_id: buildingId })
+        .eq('id', user.id);
 
-    if (updateError) {
-      setError('건물 등록 중 오류가 발생했습니다.');
-      setIsLoading(false);
-      return;
-    }
-
-    // 4. Update Zustand Store & Redirect
-    if (userStore) {
-      setUser({ ...userStore, buildingId });
+      if (updateError) {
+        setError('건물 등록 중 오류가 발생했습니다.');
+        setIsLoading(false);
+        return;
+      }
+      if (userStore) {
+        setUser({ ...userStore, buildingId });
+      }
+    } else {
+      // Guest User: Store the verified building ID in a cookie
+      document.cookie = `guest_building_id=${buildingId}; path=/; max-age=31536000`;
     }
     
-    alert(`[${buildingData.name}] (으)로 인증되었습니다!`);
+    alert(`[${buildingData.name}] (으)로 입장합니다!`);
     router.push('/');
     setIsLoading(false);
   };

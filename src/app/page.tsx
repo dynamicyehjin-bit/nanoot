@@ -1,26 +1,27 @@
 import { createClient } from '@/lib/supabase/server';
 import { CoBuyingCard } from '@/components/CoBuyingCard';
 import { mockCoBuyings } from '@/lib/mock-data';
+import { GuestLanding } from '@/components/GuestLanding';
+import { cookies } from 'next/headers';
 
 export default async function Home() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const cookieStore = await cookies();
+  const guestBuildingId = cookieStore.get('guest_building_id')?.value;
 
-  // 사용자 정보 (건물 소속 확인용)
-  let userProfile = null;
-  if (user) {
-    const { data } = await supabase.from('users').select('building_id').eq('id', user.id).single();
-    userProfile = data;
+  if (!user && !guestBuildingId) {
+    return <GuestLanding />;
   }
 
-  // 실제 DB 연동 구문
-  const { data: cbData } = await supabase
-    .from('co_buyings')
-    .select('*')
-    .eq('building_id', userProfile?.building_id)
-    .order('created_at', { ascending: false });
-  
-  const items = cbData || [];
+  // 사용자 정보 더미 (건물 소속 확인용, 게스트의 경우 쿠키 확인)
+  let userProfile = { building_id: user ? '1' : guestBuildingId || '1' };
+
+  // 실제 DB 연동 구문 대신 더미 데이터 사용
+  const items = mockCoBuyings.map(item => ({
+    ...item,
+    total_quantity: item.totalQuantity,
+  }));
 
   return (
     <div className="flex flex-col flex-1 pb-20">
@@ -67,7 +68,7 @@ export default async function Home() {
       </div>
 
       {/* Floating Action Button (Write) */}
-      <button className="absolute bottom-6 right-4 w-14 h-14 bg-black text-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-800 transition-colors">
+      <button className="absolute bottom-24 right-4 w-14 h-14 bg-black text-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-800 transition-colors">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <line x1="12" y1="5" x2="12" y2="19" />
           <line x1="5" y1="12" x2="19" y2="12" />

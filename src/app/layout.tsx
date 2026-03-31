@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { headers } from "next/headers";
-import { GNB } from "@/components/GNB";
-import { createClient } from "@/lib/supabase/server";
+import { GNBWrapper } from "@/components/GNBWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,32 +18,18 @@ export const metadata: Metadata = {
   description: "이웃과 함께하는 스마트 공동구매 서비스",
 };
 
-const NO_GNB_PATHS = ['/login', '/signup', '/building', '/auth'];
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headersList = await headers();
-  const pathname = headersList.get('x-pathname') || '';
-  const showGNB = !NO_GNB_PATHS.some(p => pathname.startsWith(p));
-
-  let isAuthenticated = false;
-  if (showGNB) {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    isAuthenticated = !!user;
-  }
-
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
         <div className="mx-auto max-w-[440px] min-h-screen bg-white shadow-xl flex flex-col relative overflow-hidden">
-          <div className={`flex flex-col flex-1 ${isAuthenticated && showGNB ? 'pb-16' : ''}`}>
+          <GNBWrapper>
             {children}
-          </div>
-          {isAuthenticated && showGNB && <GNB />}
+          </GNBWrapper>
         </div>
       </body>
     </html>
