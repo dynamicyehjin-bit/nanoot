@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { GNBWrapper } from "@/components/GNBWrapper";
+import { GlobalLayout } from "@/components/GlobalLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,9 +27,9 @@ export default function RootLayout({
     <html lang="ko" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
         <div className="mx-auto max-w-[440px] min-h-screen bg-white shadow-xl flex flex-col relative overflow-hidden">
-          <GNBWrapper>
+          <GlobalLayout>
             {children}
-          </GNBWrapper>
+          </GlobalLayout>
         </div>
       </body>
     </html>

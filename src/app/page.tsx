@@ -4,7 +4,6 @@ import { createClient } from '@/lib/supabase/server';
 import { CoBuyingCard } from '@/components/CoBuyingCard';
 import { GuestLanding } from '@/components/GuestLanding';
 import { cookies } from 'next/headers';
-import { BottomNav } from '@/components/BottomNav';
 
 export default async function Home() {
   const supabase = await createClient();
@@ -79,8 +78,6 @@ export default async function Home() {
           <line x1="5" y1="12" x2="19" y2="12" />
         </svg>
       </button>
-
-      <BottomNav />
     </div>
   );
 }
