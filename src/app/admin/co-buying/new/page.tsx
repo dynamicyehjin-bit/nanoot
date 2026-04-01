@@ -39,9 +39,9 @@ export default function NewCoBuyingPage() {
     link: '',
     image: null as File | null,
     previewUrl: '',
-    price: 0,
+    price: '' as unknown as number,
     feeType: 0.10 as number | 'manual',
-    manualFee: 0,
+    manualFee: '' as unknown as number,
     unit: '',
     options: [{ name: '', quantity: 1 }] as Option[],
     hostQuantity: 1, // Currently simplifying to single host quantity or per option
@@ -50,8 +50,22 @@ export default function NewCoBuyingPage() {
   });
 
   const fetchBuildings = useCallback(async () => {
-    const { data } = await supabase.from('buildings').select('id, name');
-    if (data) setBuildings(data);
+    const { data: bData } = await supabase.from('buildings').select('id, name');
+    if (bData) setBuildings(bData);
+
+    // Get current user's building_id and set as default
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase
+        .from('users')
+        .select('building_id')
+        .eq('id', user.id)
+        .single();
+      
+      if (profile?.building_id) {
+        setFormData(prev => ({ ...prev, buildingId: profile.building_id }));
+      }
+    }
   }, [supabase]);
 
   useEffect(() => {
@@ -100,13 +114,15 @@ export default function NewCoBuyingPage() {
   };
 
   // Calculations
-  const calculatedFee = formData.feeType === 'manual' ? formData.manualFee : Math.floor(formData.price * formData.feeType);
+  const priceVal = typeof formData.price === 'number' ? formData.price : 0;
+  const manualFeeVal = typeof formData.manualFee === 'number' ? formData.manualFee : 0;
+  const calculatedFee = formData.feeType === 'manual' ? manualFeeVal : Math.floor(priceVal * formData.feeType);
   const totalQuantity = formData.options.reduce((sum, opt) => sum + opt.quantity, 0);
   const hostTotalQuantity = formData.hostQuantity; // Simplified
   const participantQuantity = totalQuantity - hostTotalQuantity;
   
-  const unitPrice = formData.price + calculatedFee; // Approximate participant unit price
-  const hostPay = formData.hostQuantity * formData.price;
+  const unitPrice = priceVal + calculatedFee; // Approximate participant unit price
+  const hostPay = formData.hostQuantity * priceVal;
   const totalReceived = participantQuantity * unitPrice;
 
   const handleSubmit = async () => {
@@ -174,7 +190,7 @@ export default function NewCoBuyingPage() {
       if (optError) throw optError;
 
       alert('공구가 등록되었습니다.');
-      router.push('/admin');
+      router.push('/');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(error);
@@ -204,7 +220,7 @@ export default function NewCoBuyingPage() {
               onChange={(e) => setFormData({ ...formData, buildingId: e.target.value })}
               className="w-full h-12 px-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 bg-white"
             >
-              <option value="">건물을 선택해주세요</option>
+              <option value="" disabled hidden>건물을 선택해주세요</option>
               {buildings.map(b => (
                 <option key={b.id} value={b.id}>{b.name}</option>
               ))}
@@ -271,7 +287,7 @@ export default function NewCoBuyingPage() {
                 type="number"
                 placeholder="0"
                 value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value === '' ? '' as unknown as number : Number(e.target.value) })}
               />
             </div>
             <div>
@@ -295,9 +311,9 @@ export default function NewCoBuyingPage() {
                 <Input
                   className="mt-2"
                   type="number"
-                  placeholder="금액 직접 입력"
+                  placeholder="0"
                   value={formData.manualFee}
-                  onChange={(e) => setFormData({ ...formData, manualFee: Number(e.target.value) })}
+                  onChange={(e) => setFormData({ ...formData, manualFee: e.target.value === '' ? '' as unknown as number : Number(e.target.value) })}
                 />
               )}
               <div className="mt-2 text-[13px] text-gray-400 flex justify-between">
@@ -310,11 +326,21 @@ export default function NewCoBuyingPage() {
           {/* Unit */}
           <section>
             <label className="block text-sm font-bold text-gray-900 mb-2">단위</label>
-            <Input
-              placeholder="예) 개, g, L"
-              value={formData.unit}
-              onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-            />
+            <div className="flex gap-2">
+              {['개', 'g', 'L'].map((u) => (
+                <button
+                  key={u}
+                  onClick={() => setFormData({ ...formData, unit: u })}
+                  className={`flex-1 h-11 rounded-xl text-sm font-medium border transition-colors ${
+                    formData.unit === u
+                      ? 'bg-gray-900 text-white border-gray-900'
+                      : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  {u}
+                </button>
+              ))}
+            </div>
           </section>
 
           {/* Options */}

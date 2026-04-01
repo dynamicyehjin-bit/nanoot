@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { BottomNav } from '@/components/BottomNav';
@@ -12,7 +14,7 @@ export function GlobalLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const supabase = createClient();
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -21,13 +23,12 @@ export function GlobalLayout({ children }: { children: React.ReactNode }) {
       setIsLoggedIn(!!user);
       
       if (user) {
-        // Simple check for admin: you might need a more robust check based on your DB schema
         const { data: profile } = await supabase
           .from('users')
-          .select('is_admin')
+          .select('role')
           .eq('id', user.id)
           .single();
-        setIsAdmin(!!profile?.is_admin);
+        setUserRole(profile?.role || 'USER');
       }
     };
     checkUser();
@@ -42,7 +43,7 @@ export function GlobalLayout({ children }: { children: React.ReactNode }) {
       return;
     }
     
-    if (isAdmin) {
+    if (userRole === 'ADMIN') {
       router.push('/admin/co-buying/new');
     } else {
       setIsBottomSheetOpen(true);
@@ -54,12 +55,11 @@ export function GlobalLayout({ children }: { children: React.ReactNode }) {
       <div className={`flex flex-col flex-1 relative ${showNav ? 'pb-16' : ''}`}>
         {children}
         
-        {/* Floating Action Button - Moved here to stay within max-width container */}
-        {showNav && (
+        {/* Floating Action Button - Only visible on home page */}
+        {showNav && isHome && (
           <button 
             onClick={handleFabClick}
-            style={{ bottom: 'calc(var(--gnb-total-height) + 16px)' }}
-            className="fixed right-4 w-14 h-14 bg-black text-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-800 transition-all active:scale-95 z-30"
+            className="absolute bottom-[80px] right-4 w-14 h-14 bg-black text-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-800 transition-all active:scale-95 z-30"
           >
             <Plus size={24} strokeWidth={3} />
           </button>
