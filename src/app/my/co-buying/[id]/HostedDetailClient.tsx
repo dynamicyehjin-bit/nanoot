@@ -304,10 +304,10 @@ export function HostedDetailClient({ coBuyingInfo, joinersList: initialJoinersLi
       </div>
 
       {/* Bottom Button */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white border-t border-gray-100 p-4 pb-8 z-30">
+      <div className="fixed bottom-[64px] left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white border-t border-gray-100 p-4 z-30">
         {coBuyingInfo.status === 'RECRUITING' ? (
           <Button
-            className="w-full h-[52px] rounded-xl font-bold text-[16px] !bg-black hover:!bg-gray-800 !text-white"
+            className="w-full h-[52px] rounded-xl font-bold text-[16px] !bg-black hover:!bg-gray-800 !text-white border-none"
             onClick={handleCloseRecruitment}
             disabled={isUpdating}
           >
@@ -315,14 +315,17 @@ export function HostedDetailClient({ coBuyingInfo, joinersList: initialJoinersLi
           </Button>
         ) : isPaymentWaiting ? (
           <Button
-            className="w-full h-[52px] rounded-xl font-bold text-[16px] !bg-black hover:!bg-gray-800 !text-white"
+            className="w-full h-[52px] rounded-xl font-bold text-[16px] !bg-black hover:!bg-gray-800 !text-white border-none"
             onClick={sendAllPaymentNotice}
             disabled={unpaidCount === 0}
           >
             {unpaidCount > 0 ? `미입금자 ${unpaidCount}명에게 입금 안내 보내기` : '모두 입금 완료!'}
           </Button>
         ) : (
-          <Button className="w-full h-[52px] rounded-xl font-bold text-[16px]" disabled>
+          <Button 
+            className="w-full h-[52px] rounded-xl font-bold text-[16px] !bg-black !text-white opacity-50 border-none" 
+            disabled
+          >
             {statusLabel[coBuyingInfo.status] || '진행 중'}
           </Button>
         )}
