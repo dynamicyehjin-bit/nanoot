@@ -6,6 +6,7 @@ import { BottomNav } from '@/components/BottomNav';
 import { RequestCoBuyingBottomSheet } from '@/components/RequestCoBuyingBottomSheet';
 import { Plus } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { registerPushNotification } from '@/lib/pushNotification';
 
 const NO_NAV_PATHS = ['/login', '/signup', '/building', '/auth'];
 
@@ -29,6 +30,9 @@ export function GlobalLayout({ children }: { children: React.ReactNode }) {
           .eq('id', user.id)
           .single();
         setUserRole(profile?.role || 'USER');
+        
+        // Register Push Notification after login
+        registerPushNotification();
       }
     };
     checkUser();
