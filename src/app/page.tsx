@@ -6,6 +6,7 @@ import { CoBuyingCard } from '@/components/CoBuyingCard';
 import { GuestLanding } from '@/components/GuestLanding';
 import { CATEGORIES } from '@/lib/categories';
 import Link from 'next/link';
+import { Bell, Search } from 'lucide-react';
 
 export default function Home() {
   const [user, setUser] = useState<any>(null);
@@ -15,6 +16,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('전체');
   const [isLoading, setIsLoading] = useState(true);
   const [showGuestLanding, setShowGuestLanding] = useState(false);
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
 
   // Drag interaction for PC
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -78,6 +80,17 @@ export default function Home() {
       .order('created_at', { ascending: false });
     
     setItems(cbItems || []);
+    
+    // 5. Fetch unread notifications
+    if (currentUser) {
+      const { count } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', currentUser.id)
+        .eq('is_read', false);
+      setHasUnreadNotifications((count || 0) > 0);
+    }
+
     setIsLoading(false);
   }, [supabase]);
 
@@ -131,11 +144,20 @@ export default function Home() {
       {/* Header */}
       <header className="sticky top-0 bg-white/80 backdrop-blur-md z-10 px-4 py-4 border-b border-gray-100 flex items-center justify-between">
         <h1 className="text-xl font-bold">{building?.name || '우리 건물'} 나눗</h1>
-        <button className="w-8 h-8 flex items-center justify-center text-gray-600 bg-gray-100 rounded-full">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </button>
+        <div className="flex items-center gap-2">
+          <button className="w-8 h-8 flex items-center justify-center text-gray-600 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+            <Search size={18} />
+          </button>
+          <Link 
+            href="/notifications" 
+            className="w-8 h-8 flex items-center justify-center text-gray-600 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors relative"
+          >
+            <Bell size={18} />
+            {hasUnreadNotifications && (
+              <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full" />
+            )}
+          </Link>
+        </div>
       </header>
       
       {/* Banner */}
