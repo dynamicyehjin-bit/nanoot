@@ -278,17 +278,6 @@ export default function NewCoBuyingPage() {
             </label>
           </section>
 
-          {/* Description */}
-          <section>
-            <label className="block text-sm font-bold text-gray-900 mb-2">안내사항</label>
-            <textarea
-              placeholder="이웃님들께 공구 안내사항을 입력해주세요"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full h-32 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 bg-white text-[15px] resize-none"
-            />
-          </section>
-
           <Button className="w-full h-14 rounded-2xl font-bold text-lg mt-4" onClick={handleNext}>
             다음
           </Button>
@@ -307,7 +296,15 @@ export default function NewCoBuyingPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">수고비 선택</label>
+              <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-1.5">
+                수고비 선택
+                <div className="group relative">
+                  <div className="w-4 h-4 rounded-full border border-gray-400 text-gray-400 text-[10px] flex items-center justify-center cursor-help">?</div>
+                  <div className="absolute left-0 bottom-full mb-2 w-64 p-3 bg-gray-900 text-white text-[12px] rounded-xl hidden group-hover:block z-20 shadow-xl leading-relaxed whitespace-pre-wrap">
+                    정가 외에 주최자가 노고의 대가로 받는 소액의 비용입니다. (포장, 배분 비용 등)
+                  </div>
+                </div>
+              </label>
               <div className="grid grid-cols-4 gap-2">
                 {FEES.map(fee => (
                   <button
@@ -370,7 +367,7 @@ export default function NewCoBuyingPage() {
             {formData.options.map((opt, idx) => (
               <div key={idx} className="flex items-center gap-3">
                 <Input
-                  placeholder="옵션명"
+                  placeholder={formData.title || "옵션명"}
                   className="flex-1"
                   value={opt.name}
                   onChange={(e) => updateOption(idx, 'name', e.target.value)}
@@ -390,7 +387,7 @@ export default function NewCoBuyingPage() {
           {/* Quantities */}
           <section className="flex flex-col gap-4 bg-gray-50 p-4 rounded-2xl">
             <div className="flex justify-between items-center">
-              <span className="text-sm font-bold text-gray-900">주최자 구매 수량</span>
+              <span className="text-sm font-bold text-gray-900">내가 살 수량</span>
               <div className="flex items-center border border-gray-200 rounded-lg h-10 px-1 bg-white">
                 <button onClick={() => setFormData({ ...formData, hostQuantity: Math.max(1, formData.hostQuantity - 1) })} className="p-1"><Minus size={16} /></button>
                 <span className="w-8 text-center text-sm font-bold">{formData.hostQuantity}</span>
@@ -398,7 +395,7 @@ export default function NewCoBuyingPage() {
               </div>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm font-bold text-gray-900">최소 성사 수량 (주최자 제외)</span>
+              <span className="text-sm font-bold text-gray-900">신청자 최소 구매 수량</span>
               <div className="flex items-center border border-gray-200 rounded-lg h-10 px-1 bg-white">
                 <button onClick={() => setFormData({ ...formData, minQuantity: Math.max(1, formData.minQuantity - 1) })} className="p-1"><Minus size={16} /></button>
                 <span className="w-8 text-center text-sm font-bold">{formData.minQuantity}</span>
@@ -417,26 +414,39 @@ export default function NewCoBuyingPage() {
             />
           </section>
 
-          {/* Summary */}
-          <section className="bg-gray-900 text-white p-6 rounded-2xl flex flex-col gap-3">
-             <div className="flex justify-between text-gray-400 text-sm">
-                <span>총 수량</span>
-                <span className="text-white font-bold">{totalQuantity}개</span>
-             </div>
-             <div className="flex justify-between text-gray-400 text-sm">
-                <span>개당 참가액</span>
-                <span className="text-white font-bold text-[#C1EB3B]">₩{unitPrice.toLocaleString()}</span>
-             </div>
-             <div className="h-px bg-gray-800 my-1" />
-             <div className="flex justify-between text-gray-400 text-sm italic">
-                <span>내가 낼 금액 (주최자 {formData.hostQuantity}개)</span>
-                <span className="text-white font-bold">₩{hostPay.toLocaleString()}</span>
-             </div>
-             <div className="flex justify-between items-center mt-1">
-                <span className="font-bold">받을 총 금액 (참가자 {participantQuantity}개)</span>
-                <span className="text-xl font-bold text-[#84CC16]">₩{totalReceived.toLocaleString()}</span>
-             </div>
+          {/* Description */}
+          <section>
+            <label className="block text-sm font-bold text-gray-900 mb-2">안내사항</label>
+            <textarea
+              placeholder="이웃님들께 공구 안내사항을 입력해주세요"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="w-full h-32 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 bg-white text-[15px] resize-none"
+            />
           </section>
+
+          {/* Summary */}
+          {priceVal > 0 && (
+            <section className="bg-gray-900 text-white p-6 rounded-2xl flex flex-col gap-3">
+               <div className="flex justify-between text-gray-400 text-sm">
+                  <span>총 수량</span>
+                  <span className="text-white font-bold">{totalQuantity}개</span>
+               </div>
+               <div className="flex justify-between text-gray-400 text-sm">
+                  <span>개당 참가액</span>
+                  <span className="text-white font-bold text-[#C1EB3B]">₩{unitPrice.toLocaleString()}</span>
+               </div>
+               <div className="h-px bg-gray-800 my-1" />
+               <div className="flex justify-between text-gray-400 text-sm italic">
+                  <span>내가 낼 금액 (주최자 {formData.hostQuantity}개)</span>
+                  <span className="text-white font-bold">₩{hostPay.toLocaleString()}</span>
+               </div>
+               <div className="flex justify-between items-center mt-1">
+                  <span className="font-bold">받을 총 금액 (참가자 {participantQuantity}개)</span>
+                  <span className="text-xl font-bold text-[#84CC16]">₩{totalReceived.toLocaleString()}</span>
+               </div>
+            </section>
+          )}
 
           <Button className="w-full h-14 rounded-2xl font-bold text-lg" onClick={handleSubmit} disabled={isSubmitting}>
             {isSubmitting ? '진행 중...' : '등록하기'}
