@@ -47,6 +47,7 @@ export default function NewCoBuyingPage() {
     hostQuantity: 1, // Currently simplifying to single host quantity or per option
     minQuantity: 1,
     deadline: '',
+    description: '',
   });
 
   const fetchBuildings = useCallback(async () => {
@@ -170,6 +171,7 @@ export default function NewCoBuyingPage() {
           building_id: formData.buildingId,
           image_url: imageUrl,
           creator_id: user?.id,
+          description: formData.description,
         })
         .select()
         .single();
@@ -274,6 +276,17 @@ export default function NewCoBuyingPage() {
               )}
               <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
             </label>
+          </section>
+
+          {/* Description */}
+          <section>
+            <label className="block text-sm font-bold text-gray-900 mb-2">안내사항</label>
+            <textarea
+              placeholder="이웃님들께 공구 안내사항을 입력해주세요"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="w-full h-32 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 bg-white text-[15px] resize-none"
+            />
           </section>
 
           <Button className="w-full h-14 rounded-2xl font-bold text-lg mt-4" onClick={handleNext}>

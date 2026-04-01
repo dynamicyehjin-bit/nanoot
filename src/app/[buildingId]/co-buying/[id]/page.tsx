@@ -116,14 +116,7 @@ export default async function CoBuyingDetail({ params }: { params: Promise<{ bui
         </h1>
 
         <div className="text-[15px] text-gray-700 leading-relaxed whitespace-pre-wrap">
-          {`안녕하세요 이웃님들! 🤗
-달콤하고 맛있는 제철 성주 꿀참외 공구합니다.
-
-마트가면 3~4개에 만원씩 하는데, 산지 직송으로 3kg (10~13과) 한 박스 통째로 저렴하게 가져오려고 해요. 
-
-✅ 최소 수량 20박스 채워지면 바로 주문 넣습니다.
-✅ 배송 오면 제가 아파트 정자 쪽에서 나눠드릴게요!
-✅ 신선식품이라 픽업 꼭 당일에 해주실 분만 참여 부탁드려요.`}
+          {detail.description || '반가워요! 이번 공동구매에 대해 소개해 드릴게요.'}
         </div>
       </div>
 
