@@ -5,8 +5,6 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  // if "next" is in param, use it as the redirect URL
-  const next = searchParams.get('next') ?? '/'
 
   if (code) {
     const supabase = await createClient()
@@ -24,35 +22,33 @@ export async function GET(request: Request) {
           .single();
 
         if (!profile) {
-          // If this is a new OAuth user, create their profile with default values extracted from the provider
+          // New OAuth user: insert row without nickname (null) → profile setup required
           const name = user.user_metadata?.full_name || '사용자';
           const email = user.user_metadata?.email || user.email;
 
           await supabase.from('users').insert({
             id: user.id,
             name: name,
-            nickname: name, // Default nickname initially
             email: email,
           });
 
-          // Redirect to profile setup
-          return NextResponse.redirect(`${origin}/auth/setup-profile`)
-        } else if (!profile.nickname || profile.nickname === '사용자') {
-          // Has profile but nickname is null or default, send to setup
-          return NextResponse.redirect(`${origin}/auth/setup-profile`)
+          return NextResponse.redirect(`${origin}/profile/setup`);
         }
-      }
 
-      // If they have a building_id, redirect to the desired page (or home)
-      const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
-      const isLocalEnv = process.env.NODE_ENV === 'development'
-      if (isLocalEnv) {
-        // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
-        return NextResponse.redirect(`${origin}${next}`)
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`)
-      } else {
-        return NextResponse.redirect(`${origin}${next}`)
+        // Existing user with no nickname → profile setup required
+        if (!profile.nickname) {
+          return NextResponse.redirect(`${origin}/profile/setup`);
+        }
+
+        // Existing user with nickname → redirect based on building_id
+        const forwardedHost = request.headers.get('x-forwarded-host');
+        const isLocalEnv = process.env.NODE_ENV === 'development';
+        const baseUrl = isLocalEnv ? origin : forwardedHost ? `https://${forwardedHost}` : origin;
+
+        if (!profile.building_id) {
+          return NextResponse.redirect(`${baseUrl}/building/setup`);
+        }
+        return NextResponse.redirect(`${baseUrl}/`);
       }
     }
   }
