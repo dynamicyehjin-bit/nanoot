@@ -50,6 +50,15 @@ export default function NewCoBuyingPage() {
     description: '',
   });
 
+  // Calculate default deadline: 2 days from now
+  useEffect(() => {
+    const now = new Date();
+    const minDate = now.toISOString().slice(0, 16);
+    const twoDaysLater = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
+    const formattedDate = twoDaysLater.toISOString().slice(0, 16);
+    setFormData(prev => ({ ...prev, deadline: formattedDate }));
+  }, []);
+
   const fetchBuildings = useCallback(async () => {
     const { data: bData } = await supabase.from('buildings').select('id, name');
     if (bData) setBuildings(bData);
@@ -135,6 +144,11 @@ export default function NewCoBuyingPage() {
       return;
     }
 
+    if (new Date(formData.deadline) <= new Date()) {
+      alert('마감일은 현재 시간보다 나중이어야 합니다.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       // 1. Upload Image
@@ -196,10 +210,10 @@ export default function NewCoBuyingPage() {
 
       alert('공구가 등록되었습니다.');
       router.push('/');
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.error(error);
-      alert('등록 중 오류가 발생했습니다: ' + message);
+    } catch (error: any) {
+      console.error('Registration Error Details:', error);
+      const errorMessage = error?.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+      alert('등록 중 오류가 발생했습니다: ' + errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -410,6 +424,7 @@ export default function NewCoBuyingPage() {
             <Input
               type="datetime-local"
               value={formData.deadline}
+              min={new Date().toISOString().slice(0, 16)}
               onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
             />
           </section>
