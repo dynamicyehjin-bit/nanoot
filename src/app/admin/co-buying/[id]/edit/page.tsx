@@ -4,13 +4,13 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, use, useCallback } from 'react';
 import Image from 'next/image';
+import { CATEGORIES, CategoryValue } from '@/lib/categories';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ChevronLeft, Camera } from 'lucide-react';
-import { CATEGORIES } from '@/lib/categories';
-import { CoBuyingCategory } from '@/types';
+
 
 // CATEGORIES constant removed here, now using import
 
@@ -27,7 +27,7 @@ export default function EditCoBuyingPage({ params }: { params: Promise<{ id: str
   // Form State
   const [formData, setFormData] = useState({
     buildingId: '',
-    category: CATEGORIES[0].value as CoBuyingCategory,
+    category: CATEGORIES[0].value as CategoryValue,
     title: '',
     link: '',
     image: null as File | null,
@@ -70,7 +70,7 @@ export default function EditCoBuyingPage({ params }: { params: Promise<{ id: str
 
     setFormData({
       buildingId: cb.building_id,
-      category: cb.category || '전체',
+      category: cb.category || CATEGORIES[0].value,
       title: cb.title,
       link: '', // Not stored in DB yet
       image: null,
@@ -233,8 +233,8 @@ export default function EditCoBuyingPage({ params }: { params: Promise<{ id: str
                   key={cat.value}
                   onClick={() => setFormData({ ...formData, category: cat.value })}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    formData.category === cat.value 
-                      ? 'bg-[#84CC16] text-white' 
+                    formData.category === cat.value
+                      ? 'bg-[#84CC16] text-white'
                       : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                   }`}
                 >

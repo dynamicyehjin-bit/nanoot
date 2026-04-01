@@ -119,7 +119,7 @@ export default function Home() {
     }
 
     setIsLoading(false);
-  }, [supabase]);
+  }, [supabase, router]);
 
   useEffect(() => {
     fetchData();
@@ -161,7 +161,7 @@ export default function Home() {
     return item.category === activeTab;
   });
 
-  const displayCategories = ['전체', ...CATEGORIES.map(c => c.value)];
+  const displayCategories = [{ value: '전체', emoji: '📦' }, ...CATEGORIES];
 
   return (
     <div className="flex flex-col flex-1 pb-20">
@@ -202,15 +202,16 @@ export default function Home() {
       >
         {displayCategories.map(cat => (
           <button 
-            key={cat}
-            onClick={() => !hasMoved && setActiveTab(cat)}
-            className={`px-4 py-1.5 rounded-full text-[14px] font-bold whitespace-nowrap transition-all border ${
-              activeTab === cat 
-                ? 'bg-[#D2E762] text-black border-[#D2E762]' 
-                : 'bg-gray-100 text-gray-400 border-gray-100'
+            key={cat.value}
+            onClick={() => !hasMoved && setActiveTab(cat.value)}
+            className={`px-4 py-1.5 rounded-full text-[14px] font-bold whitespace-nowrap transition-all border flex items-center gap-1.5 ${
+              activeTab === cat.value 
+                ? 'bg-[#84CC16] text-white border-[#84CC16]' 
+                : 'bg-gray-100 text-gray-400 border-gray-100 hover:bg-gray-200'
             }`}
           >
-            {cat}
+            <span className="text-base">{cat.emoji}</span>
+            {cat.value}
           </button>
         ))}
       </div>
@@ -245,6 +246,7 @@ export default function Home() {
               status={item.status}
               totalQuantity={item.total_quantity || 0}
               currentQuantity={item.current_quantity || 0} 
+              totalPrice={item.total_price || 0}
               deadline={item.deadline}
               thumbnailUrl={item.image_url || 'https://images.unsplash.com/photo-1590481845199-3543ebce321f?q=80&w=2670&auto=format&fit=crop'} 
             />

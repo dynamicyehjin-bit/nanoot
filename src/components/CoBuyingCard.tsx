@@ -1,5 +1,6 @@
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
+import { getCategoryEmoji } from '@/lib/categories';
 
 export interface CoBuyingCardProps {
   id: string;
@@ -12,6 +13,7 @@ export interface CoBuyingCardProps {
   thumbnailUrl?: string;
   buildingId?: string;
   href?: string;
+  totalPrice: number;
 }
 
 export function CoBuyingCard({
@@ -25,6 +27,7 @@ export function CoBuyingCard({
   thumbnailUrl,
   buildingId = '1',
   href,
+  totalPrice,
 }: CoBuyingCardProps) {
   // 모집중: RECRUITING + deadline 안 지남 / 그 외 전부: 모집 마감
   const isExpired = new Date(deadline).getTime() - new Date().getTime() < 0;
@@ -52,7 +55,10 @@ export function CoBuyingCard({
         <div className="flex flex-col flex-1 justify-between py-0.5">
           <div>
             <div className="flex justify-between items-start mb-1">
-              <span className="text-xs text-gray-500">{category || '기타'}</span>
+              <span className="text-[11px] text-gray-500 flex items-center gap-1">
+                <span>{getCategoryEmoji(category)}</span>
+                {category || '기타'}
+              </span>
               <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${badgeClass}`}>
                 {badgeLabel}
               </span>
@@ -60,6 +66,9 @@ export function CoBuyingCard({
             <h3 className="font-semibold text-[15px] leading-snug line-clamp-2 text-gray-900">
               {title}
             </h3>
+            <div className="mt-1 text-[13px] text-gray-900 font-bold">
+              {totalQuantity > 0 ? Math.round(totalPrice / totalQuantity).toLocaleString() : 0}원 <span className="text-gray-400 font-normal ml-0.5">개당</span>
+            </div>
           </div>
           
           <div className="flex justify-between items-end mt-2">
