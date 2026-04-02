@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { ParticipatedCoBuyingCard, ParticipatedCoBuyingCardProps } from '@/components/ParticipatedCoBuyingCard';
 import { Button } from '@/components/ui/Button';
+import { Skeleton } from '@/components/ui/Skeleton';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
@@ -127,9 +128,6 @@ function MyCoBuyingPageContent() {
     fetchData();
   }, [tab]);
 
-  if (isLoading) {
-    return <div className="p-6">로딩 중...</div>;
-  }
 
   if (!user) {
     return null;
@@ -162,7 +160,20 @@ function MyCoBuyingPageContent() {
       </header>
 
       <div className="flex-1 overflow-y-auto">
-        {isEmpty ? (
+        {isLoading ? (
+          <div className="flex flex-col pt-2">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="px-5 py-4 border-b border-gray-100 bg-white flex gap-4">
+                <Skeleton className="w-20 h-20 rounded-xl flex-shrink-0" />
+                <div className="flex-1 flex flex-col justify-center gap-2">
+                  <Skeleton className="h-4 w-1/4" />
+                  <Skeleton className="h-5 w-full" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : isEmpty ? (
           <div className="flex flex-col items-center justify-center p-10 mt-20 text-center gap-4">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-2">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -234,7 +245,7 @@ function MyCoBuyingPageContent() {
 
 export default function MyCoBuyingPage() {
   return (
-    <Suspense fallback={<div className="p-6">로딩 중...</div>}>
+    <Suspense fallback={null}>
       <MyCoBuyingPageContent />
     </Suspense>
   );
