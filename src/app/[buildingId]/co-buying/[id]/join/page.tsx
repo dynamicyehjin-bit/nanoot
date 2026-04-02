@@ -79,7 +79,7 @@ export default function JoinCoBuying({ params }: { params: Promise<{ buildingId:
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         alert('로그인이 필요합니다.');
-        router.push('/login');
+        router.push('/');
         return;
       }
 

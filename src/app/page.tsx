@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { CoBuyingCard } from '@/components/CoBuyingCard';
 import { GuestLanding } from '@/components/GuestLanding';
@@ -56,7 +57,12 @@ export default function Home() {
     }
 
     if (!bId) {
-      setShowGuestLanding(true);
+      if (currentUser) {
+        // Logged-in user with no building → send to building setup
+        router.replace('/building/setup');
+      } else {
+        setShowGuestLanding(true);
+      }
       setIsLoading(false);
       return;
     }
