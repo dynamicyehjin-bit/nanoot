@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { ChevronLeft } from 'lucide-react';
+import { Skeleton } from '@/components/ui/Skeleton';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -92,7 +93,18 @@ export default function NotificationsPage() {
       {/* List */}
       <div className="flex-1">
         {isLoading ? (
-          <div className="p-6 text-center text-gray-400">알림을 불러오는 중...</div>
+          <div className="flex flex-col">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="px-5 py-5 border-b border-gray-50">
+                <div className="flex justify-between items-start mb-2">
+                  <Skeleton className="h-5 w-2/3" />
+                  <Skeleton className="h-3 w-12" />
+                </div>
+                <Skeleton className="h-4 w-full mb-1.5" />
+                <Skeleton className="h-4 w-4/5" />
+              </div>
+            ))}
+          </div>
         ) : notifications.length === 0 ? (
           <div className="h-[60vh] flex flex-col items-center justify-center text-gray-400">
             <p className="text-[15px]">새로운 알림이 없습니다.</p>
