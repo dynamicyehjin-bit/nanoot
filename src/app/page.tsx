@@ -7,6 +7,7 @@ import { GuestLanding } from '@/components/GuestLanding';
 import { CATEGORIES } from '@/lib/categories';
 import Link from 'next/link';
 import { Bell, Search } from 'lucide-react';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export default function Home() {
   const [user, setUser] = useState<any>(null);
@@ -125,9 +126,6 @@ export default function Home() {
     scrollRef.current.scrollLeft = scrollLeft - walk;
   };
 
-  if (isLoading) {
-    return <div className="p-6">로딩 중...</div>;
-  }
 
   if (showGuestLanding) {
     return <GuestLanding />;
@@ -193,7 +191,20 @@ export default function Home() {
 
       {/* List */}
       <div className="flex-1 bg-white">
-        {filteredItems.length === 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="p-4 border-b border-gray-50 flex gap-4">
+                <Skeleton className="w-24 h-24 rounded-xl flex-shrink-0" />
+                <div className="flex-1 flex flex-col justify-center gap-2">
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-5 w-full" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filteredItems.length === 0 ? (
           <div className="h-40 flex items-center justify-center text-gray-400 text-sm">
             진행 중인 공동구매가 없습니다.
           </div>
