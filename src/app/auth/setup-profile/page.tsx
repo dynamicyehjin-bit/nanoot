@@ -56,17 +56,23 @@ export default function SetupProfilePage() {
       }
 
       // Update user profile
-      const { error: updateError } = await supabase
+      const { error: updateError, data: updatedProfile } = await supabase
         .from('users')
         .update({
           nickname: nickname,
           profile_image_url: profileImageUrl || undefined,
         })
-        .eq('id', user.id);
+        .eq('id', user.id)
+        .select('building_id')
+        .single();
 
       if (updateError) throw updateError;
 
-      router.push('/'); // Go to home after setup
+      if (updatedProfile?.building_id) {
+        router.push('/');
+      } else {
+        router.push('/building/setup');
+      }
     } catch (error) {
       console.error('Error setting up profile:', error);
       alert('프로필 설정 중 오류가 발생했습니다.');

@@ -5,11 +5,6 @@ import { createClient } from '@/lib/supabase/client';
 export function Intro() {
   const router = useRouter();
 
-  const handleStart = () => {
-    // 건물 선택 페이지 기획서 경로로 연결
-    router.push('/building/setup');
-  };
-
   const handleKakaoLogin = async () => {
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
@@ -52,26 +47,13 @@ export function Intro() {
       {/* Buttons & Footer */}
       <div className="flex flex-col gap-0 w-full flex-shrink-0 mt-auto">
         <button
-          onClick={handleStart}
-          className="w-full h-[52px] bg-[#B9F115] text-black font-bold rounded-xl text-[16px] hover:bg-[#A3E635] active:bg-[#84cc16] transition-colors shadow-sm"
-        >
-          시작하기
-        </button>
-
-        <div className="flex items-center justify-center gap-4 my-4">
-          <div className="h-[1px] bg-gray-100 flex-1" />
-          <span className="text-gray-300 text-[13px] font-medium tracking-tight">or</span>
-          <div className="h-[1px] bg-gray-100 flex-1" />
-        </div>
-
-        <button
           onClick={handleKakaoLogin}
           className="w-full h-[52px] bg-[#FEE500] text-black font-bold rounded-xl text-[16px] flex items-center justify-center gap-[6px] hover:bg-[#F4DC00] active:bg-[#e6c800] transition-colors shadow-sm"
         >
           <svg width="20" height="18" viewBox="0 0 22 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M11 0C4.92487 0 0 3.86873 0 8.64167C0 11.7589 2.05389 14.4891 5.25301 16.0336C5.02982 16.7589 4.316 19.3486 4.26938 19.5303C4.22276 19.7121 4.37257 19.6894 4.54226 19.5761C4.7825 19.412 8.35474 16.9205 9.17647 16.3268C9.76993 16.4252 10.3789 16.4756 11 16.4756C17.0751 16.4756 22 12.6069 22 7.83398C22 3.06103 17.0751 0 11 0Z" fill="black"/>
           </svg>
-          카카오 3초만에 시작하기
+          카카오로 3초만에 시작하기
         </button>
 
         {/* Terms */}
