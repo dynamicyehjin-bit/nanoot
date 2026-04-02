@@ -129,18 +129,18 @@ export function HostedDetailClient({ coBuyingInfo, joinersList: initialJoinersLi
         body: JSON.stringify({ userIds, title, body, coBuyingId: coBuyingInfo.id }),
       });
       const result = await response.json();
-      if (!result.success) throw new Error(result.error);
-      return true;
-    } catch (error) {
+      if (!result.success) return { success: false, error: result.error };
+      return { success: true };
+    } catch (error: any) {
       console.error('Trigger push failed:', error);
-      return false;
+      return { success: false, error: error.message };
     } finally {
       setIsUpdating(false);
     }
   };
 
   const sendPaymentNotice = async (userId: string, joinerName: string) => {
-    const success = await triggerPushNotice(
+    const { success, error } = await triggerPushNotice(
       [userId],
       '입금 안내',
       `[${coBuyingInfo.title}] 입금을 완료해주세요`
@@ -148,8 +148,7 @@ export function HostedDetailClient({ coBuyingInfo, joinersList: initialJoinersLi
     if (success) {
       setToastMessage(`${joinerName}님에게 입금 안내를 발송했습니다.`);
     } else {
-      // triggerPushNotice internally sets error state or logs, but let's make it explicit if needed
-      setToastMessage('알림 발송에 실패했습니다. (구독 정보 상실 등)');
+      setToastMessage(error || '알림 발송에 실패했습니다.');
     }
   };
 
@@ -163,7 +162,7 @@ export function HostedDetailClient({ coBuyingInfo, joinersList: initialJoinersLi
       return;
     }
 
-    const success = await triggerPushNotice(
+    const { success, error } = await triggerPushNotice(
       unpaidUserIds,
       '입금 안내',
       `[${coBuyingInfo.title}] 입금을 완료해주세요`
@@ -172,7 +171,7 @@ export function HostedDetailClient({ coBuyingInfo, joinersList: initialJoinersLi
     if (success) {
       setToastMessage(`${unpaidNames.join(', ')}님에게 입금 안내를 발송했습니다.`);
     } else {
-      setToastMessage('알림 발송에 실패했습니다.');
+      setToastMessage(error || '알림 발송에 실패했습니다.');
     }
   };
 
