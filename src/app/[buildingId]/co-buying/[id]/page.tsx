@@ -29,7 +29,10 @@ export default async function CoBuyingDetail({ params }: { params: Promise<{ bui
     .select('joiner_total_quantity')
     .eq('co_buying_id', id);
 
-  const currentQuantity = allJoiners?.reduce((sum, j) => sum + j.joiner_total_quantity, 0) || 0;
+  // 현재 신청 수 = host_quantity + SUM(joiners.joiner_total_quantity)
+  const hostQuantity = detailData.host_quantity || 0;
+  const joinersQuantity = allJoiners?.reduce((sum, j) => sum + j.joiner_total_quantity, 0) || 0;
+  const currentQuantity = hostQuantity + joinersQuantity;
 
   const creator = Array.isArray(detailData.creator) ? detailData.creator[0] : detailData.creator;
   const building = Array.isArray(detailData.building) ? detailData.building[0] : detailData.building;
@@ -45,8 +48,10 @@ export default async function CoBuyingDetail({ params }: { params: Promise<{ bui
     .select('*')
     .eq('co_buying_id', id);
 
-  // Calculate progress
-  const progressPercent = Math.min(100, Math.floor((detail.currentQuantity / detail.totalQuantity) * 100));
+  // Calculate progress (Fix NaN% bug by checking totalQuantity)
+  const progressPercent = detail.totalQuantity > 0 
+    ? Math.min(100, Math.floor((detail.currentQuantity / detail.totalQuantity) * 100))
+    : 0;
 
   return (
     <div className="flex flex-col flex-1 pb-24 bg-gray-50 relative min-h-screen">
@@ -165,6 +170,8 @@ export default async function CoBuyingDetail({ params }: { params: Promise<{ bui
           buildingId={buildingId} 
           buildingName={building?.name}
           options={options || []} 
+          totalQuantity={detail.totalQuantity}
+          currentQuantity={detail.currentQuantity}
         />
       ) : (
         <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white border-t border-gray-100 p-4 pb-8 z-30 flex items-center justify-center shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.15)]">
