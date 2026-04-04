@@ -188,6 +188,7 @@ export default function NewCoBuyingPage() {
           image_url: imageUrl,
           creator_id: user?.id,
           description: formData.description,
+          host_quantity: formData.hostQuantity,
         })
         .select()
         .single();

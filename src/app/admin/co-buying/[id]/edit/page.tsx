@@ -84,8 +84,8 @@ export default function EditCoBuyingPage({ params }: { params: Promise<{ id: str
         name: opt.name,
         quantity: opt.quantity,
       })) || [{ id: '', name: '', quantity: 1 }],
-      hostQuantity: 1, // Placeholder
-      minQuantity: 1,
+      hostQuantity: cb.host_quantity || 1,
+      minQuantity: 1, // Optional: also load min_quantity if available in schema
       deadline: new Date(cb.deadline).toISOString().slice(0, 16),
       status: cb.status,
     });
@@ -157,6 +157,7 @@ export default function EditCoBuyingPage({ params }: { params: Promise<{ id: str
           deadline: formData.deadline,
           building_id: formData.buildingId,
           image_url: imageUrl,
+          host_quantity: formData.hostQuantity,
         })
         .eq('id', id);
 
