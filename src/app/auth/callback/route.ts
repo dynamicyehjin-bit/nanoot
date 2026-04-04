@@ -15,14 +15,14 @@ export async function GET(request: Request) {
 
       if (user) {
         // Query user table to check if there is an existing profile
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('users')
           .select('id, building_id, nickname')
           .eq('id', user.id)
           .single();
 
-        if (!profile) {
-          // New OAuth user: upsert row with all required fields
+        // SELECT 실패(RLS/네트워크 오류) 또는 row 없음 → upsert 후 프로필 설정으로
+        if (profileError || !profile) {
           const email = user.user_metadata?.email || user.email;
 
           await supabase.from('users').upsert(
@@ -40,7 +40,7 @@ export async function GET(request: Request) {
           return NextResponse.redirect(`${origin}/auth/setup-profile`);
         }
 
-        // Existing user with no nickname → profile setup required
+        // nickname 없음 → 프로필 설정 필요
         if (!profile.nickname) {
           return NextResponse.redirect(`${origin}/auth/setup-profile`);
         }
