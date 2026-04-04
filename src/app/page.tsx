@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { CoBuyingCard } from '@/components/CoBuyingCard';
 import { GuestLanding } from '@/components/GuestLanding';
@@ -35,28 +36,27 @@ export default function Home() {
     const { data: { user: currentUser } } = await supabase.auth.getUser();
     setUser(currentUser);
 
-    // 2. Resolve buildingId (from cookie or user profile)
-    let bId: string | null = null;
-    
-    // Check cookies first
-    const cookies = document.cookie.split('; ');
-    const guestBuildingCookie = cookies.find(row => row.startsWith('guest_building_id='));
-    const guestBuildingId = guestBuildingCookie ? guestBuildingCookie.split('=')[1] : null;
-
-    if (currentUser) {
-      const { data: profile } = await supabase
-        .from('users')
-        .select('building_id')
-        .eq('id', currentUser.id)
-        .single();
-      
-      bId = profile?.building_id || guestBuildingId || null;
-    } else {
-      bId = guestBuildingId || null;
+    // 2. Resolve buildingId — only for authenticated users
+    if (!currentUser) {
+      // Not logged in → always show landing, never show home content
+      setShowGuestLanding(true);
+      setIsLoading(false);
+      return;
     }
 
+    let bId: string | null = null;
+
+    const { data: profile } = await supabase
+      .from('users')
+      .select('building_id')
+      .eq('id', currentUser.id)
+      .single();
+
+    bId = profile?.building_id || null;
+
     if (!bId) {
-      setShowGuestLanding(true);
+      // Logged-in but no building → send to building setup
+      router.replace('/building/setup');
       setIsLoading(false);
       return;
     }

@@ -46,7 +46,14 @@ export default function BuildingSearchPage() {
   };
 
   return (
-    <div className="flex flex-col flex-1 px-6 pt-16">
+    <div className="flex flex-col flex-1 px-6 pt-12 pb-10 overflow-y-auto">
+      <header className="flex items-center mb-8">
+        <button onClick={() => router.replace('/')} className="p-2 -ml-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+      </header>
       <h1 className="text-2xl font-bold mb-2">어디에 거주하시나요?</h1>
       <p className="text-gray-500 mb-8 text-sm leading-relaxed">
         이웃과 함께하는 공동구매를 위해<br />

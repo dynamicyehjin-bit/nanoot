@@ -43,7 +43,7 @@ export function GlobalLayout({ children }: { children: React.ReactNode }) {
 
   const handleFabClick = () => {
     if (!isLoggedIn) {
-      router.push('/login');
+      router.push('/');
       return;
     }
     

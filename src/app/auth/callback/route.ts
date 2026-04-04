@@ -32,12 +32,12 @@ export async function GET(request: Request) {
             email: email,
           });
 
-          return NextResponse.redirect(`${origin}/profile/setup`);
+          return NextResponse.redirect(`${origin}/auth/setup-profile`);
         }
 
         // Existing user with no nickname → profile setup required
         if (!profile.nickname) {
-          return NextResponse.redirect(`${origin}/profile/setup`);
+          return NextResponse.redirect(`${origin}/auth/setup-profile`);
         }
 
         // Existing user with nickname → redirect based on building_id
