@@ -48,9 +48,9 @@ export default async function CoBuyingDetail({ params }: { params: Promise<{ bui
     .select('*')
     .eq('co_buying_id', id);
 
-  // Calculate progress (Fix NaN% bug by checking totalQuantity)
-  const progressPercent = detail.totalQuantity > 0 
-    ? Math.min(100, Math.floor((detail.currentQuantity / detail.totalQuantity) * 100))
+  // Calculate progress (Fix NaN% bug by checking total_quantity)
+  const progressPercent = detail.total_quantity > 0 
+    ? Math.min(100, Math.floor((detail.currentQuantity / detail.total_quantity) * 100))
     : 0;
 
   return (
@@ -140,7 +140,7 @@ export default async function CoBuyingDetail({ params }: { params: Promise<{ bui
           </div>
 
           <div className="flex justify-start text-[14px]">
-            <span className="font-medium text-gray-900">{detail.currentQuantity}개 신청 / {detail.totalQuantity}개 목표</span>
+            <span className="font-medium text-gray-900">{detail.currentQuantity}개 신청 / {detail.total_quantity}개 목표</span>
           </div>
         </div>
       </div>
