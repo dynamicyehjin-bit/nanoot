@@ -129,20 +129,18 @@ export default async function CoBuyingDetail({ params }: { params: Promise<{ bui
       <div className="mt-2 bg-white px-5 py-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-bold text-gray-900 text-[17px]">현재 모집 현황</h3>
-          <span className="text-blue-600 font-bold text-lg">{progressPercent}% 달성</span>
         </div>
 
         <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100">
           <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden mb-3">
             <div
-              className="h-full bg-blue-600 transition-all duration-500 ease-out rounded-full"
+              className={`h-full bg-blue-600 transition-all duration-500 ease-out rounded-full`}
               style={{ width: `${progressPercent}%` }}
             />
           </div>
 
-          <div className="flex justify-between text-[14px]">
-            <span className="font-medium text-gray-900">{detail.currentQuantity}개 신청됨</span>
-            <span className="text-gray-500">목표 {detail.totalQuantity}개</span>
+          <div className="flex justify-start text-[14px]">
+            <span className="font-medium text-gray-900">{detail.currentQuantity}개 신청 / {detail.totalQuantity}개 목표</span>
           </div>
         </div>
       </div>
