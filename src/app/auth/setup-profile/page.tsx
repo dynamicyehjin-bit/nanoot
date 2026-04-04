@@ -56,19 +56,24 @@ export default function SetupProfilePage() {
       }
 
       // Update user profile
-      const { error: updateError, data: updatedProfile } = await supabase
+      const { error: updateError } = await supabase
         .from('users')
         .update({
           nickname: nickname,
-          profile_image_url: profileImageUrl || undefined,
+          ...(profileImageUrl ? { profile_image_url: profileImageUrl } : {}),
         })
-        .eq('id', user.id)
-        .select('building_id')
-        .single();
+        .eq('id', user.id);
 
       if (updateError) throw updateError;
 
-      if (updatedProfile?.building_id) {
+      // Check building_id to determine next step
+      const { data: profile } = await supabase
+        .from('users')
+        .select('building_id')
+        .eq('id', user.id)
+        .single();
+
+      if (profile?.building_id) {
         router.replace('/');
       } else {
         router.replace('/building/setup');
