@@ -27,6 +27,7 @@ export default function Home() {
   const [scrollLeft, setScrollLeft] = useState(0);
   const [hasMoved, setHasMoved] = useState(false);
 
+  const router = useRouter();
   const supabase = createClient();
 
   const fetchData = useCallback(async () => {
