@@ -82,3 +82,5 @@ These defaults are optimized for AI coding agents (and humans) working on apps t
 - 클라이언트 상태는 Zustand로 관리
 - 작업 완료 후 항상 `git push`까지 완료
 
+
+UI 작업 시 항상 DESIGN_GUIDE.md 파일을 먼저 읽고 해당 디자인 시스템을 준수해서 작업해줘.
