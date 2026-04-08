@@ -90,7 +90,23 @@ export default function Home() {
       };
     });
     
-    setItems(itemsWithQuantity);
+    // 정렬: 모집중(deadline ASC) → 모집마감(created_at DESC)
+    const now = new Date().getTime();
+    const sorted = itemsWithQuantity.sort((a, b) => {
+      const aRecruiting = a.status === 'RECRUITING' && new Date(a.deadline).getTime() > now;
+      const bRecruiting = b.status === 'RECRUITING' && new Date(b.deadline).getTime() > now;
+      
+      if (aRecruiting && !bRecruiting) return -1;
+      if (!aRecruiting && bRecruiting) return 1;
+      
+      if (aRecruiting && bRecruiting) {
+        return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+      }
+      
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+
+    setItems(sorted);
     
     // 5. Fetch unread notifications
     if (currentUser) {

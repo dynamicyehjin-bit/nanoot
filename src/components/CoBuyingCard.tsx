@@ -14,16 +14,6 @@ export interface CoBuyingCardProps {
   href?: string;
 }
 
-const statusMap: Record<string, { label: string; colorClass: string }> = {
-  RECRUITING: { label: '모집중', colorClass: 'bg-green-100 text-green-700' },
-  PAYMENT_WAITING: { label: '결제대기', colorClass: 'bg-yellow-100 text-yellow-700' },
-  ORDER_IN_PROGRESS: { label: '주문진행', colorClass: 'bg-blue-100 text-blue-700' },
-  READY_FOR_PICKUP: { label: '픽업대기', colorClass: 'bg-purple-100 text-purple-700' },
-  COMPLETED: { label: '완료', colorClass: 'bg-gray-200 text-gray-600' },
-  CANCELLED: { label: '취소됨', colorClass: 'bg-red-100 text-red-700' },
-  RECRUITING_FAILED: { label: '모집실패', colorClass: 'bg-red-100 text-red-700' },
-};
-
 export function CoBuyingCard({
   id,
   title,
@@ -36,16 +26,14 @@ export function CoBuyingCard({
   buildingId = '1',
   href,
 }: CoBuyingCardProps) {
-  const currentStatus = statusMap[status] || { label: status, colorClass: 'bg-gray-100 text-gray-700' };
-  
-  // Calculate D-Day
-  const limitDate = new Date(deadline);
-  const now = new Date();
-  const diffTime = limitDate.getTime() - now.getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  const isExpired = diffTime < 0;
+  // 모집중: RECRUITING + deadline 안 지남 / 그 외 전부: 모집 마감
+  const isExpired = new Date(deadline).getTime() - new Date().getTime() < 0;
+  const isRecruiting = status === 'RECRUITING' && !isExpired;
+  const badgeLabel = isRecruiting ? '모집중' : '모집 마감';
+  const badgeClass = isRecruiting
+    ? 'bg-green-100 text-green-700'
+    : 'bg-gray-200 text-gray-500';
 
-  const dDayText = isExpired ? '모집 마감' : diffDays === 0 ? 'D-Day' : `D-${diffDays}`;
   const linkHref = href || `/${buildingId}/co-buying/${id}`;
   
   return (
@@ -58,11 +46,6 @@ export function CoBuyingCard({
           ) : (
             <span className="text-gray-400 text-sm">No Image</span>
           )}
-          
-          {/* Status Badge Positioned on Image */}
-          <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded shadow-sm text-[10px] font-bold bg-white text-gray-800">
-            {dDayText}
-          </div>
         </div>
 
         {/* Content */}
@@ -70,8 +53,8 @@ export function CoBuyingCard({
           <div>
             <div className="flex justify-between items-start mb-1">
               <span className="text-xs text-gray-500">{category || '기타'}</span>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${currentStatus.colorClass}`}>
-                {currentStatus.label}
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${badgeClass}`}>
+                {badgeLabel}
               </span>
             </div>
             <h3 className="font-semibold text-[15px] leading-snug line-clamp-2 text-gray-900">
