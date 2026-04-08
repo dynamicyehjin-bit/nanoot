@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ChevronLeft, X, Plus, Minus, Camera } from 'lucide-react';
 import Image from 'next/image';
-import { CATEGORIES } from '@/lib/categories';
+import { CATEGORIES, CategoryValue } from '@/lib/categories';
 
 // CATEGORIES constant removed here, now using import
 const FEES = [
@@ -35,7 +35,7 @@ export default function NewCoBuyingPage() {
   // Form State
   const [formData, setFormData] = useState({
     buildingId: '',
-    category: CATEGORIES[0].value,
+    category: CATEGORIES[0].value as CategoryValue,
     title: '',
     link: '',
     image: null as File | null,

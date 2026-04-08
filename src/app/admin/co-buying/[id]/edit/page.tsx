@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, use, useCallback } from 'react';
 import Image from 'next/image';
-import { CATEGORIES } from '@/lib/categories';
+import { CATEGORIES, CategoryValue } from '@/lib/categories';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
@@ -26,7 +26,7 @@ export default function EditCoBuyingPage({ params }: { params: Promise<{ id: str
   // Form State
   const [formData, setFormData] = useState({
     buildingId: '',
-    category: CATEGORIES[0].value,
+    category: CATEGORIES[0].value as CategoryValue,
     title: '',
     link: '',
     image: null as File | null,
