@@ -136,6 +136,7 @@ export default function Home() {
               status={item.status}
               totalQuantity={item.total_quantity || 0}
               currentQuantity={item.current_quantity || 0} 
+              totalPrice={item.total_price || 0}
               deadline={item.deadline}
               thumbnailUrl={item.image_url || 'https://images.unsplash.com/photo-1590481845199-3543ebce321f?q=80&w=2670&auto=format&fit=crop'} 
             />

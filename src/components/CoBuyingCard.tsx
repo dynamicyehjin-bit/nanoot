@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { getCategoryEmoji } from '@/lib/categories';
 
 export interface CoBuyingCardProps {
@@ -12,6 +13,7 @@ export interface CoBuyingCardProps {
   thumbnailUrl?: string;
   buildingId?: string;
   href?: string;
+  totalPrice: number;
 }
 
 const statusMap: Record<string, { label: string; colorClass: string }> = {
@@ -35,6 +37,7 @@ export function CoBuyingCard({
   thumbnailUrl,
   buildingId = '1',
   href,
+  totalPrice,
 }: CoBuyingCardProps) {
   const currentStatus = statusMap[status] || { label: status, colorClass: 'bg-gray-100 text-gray-700' };
   
@@ -80,6 +83,9 @@ export function CoBuyingCard({
             <h3 className="font-semibold text-[15px] leading-snug line-clamp-2 text-gray-900">
               {title}
             </h3>
+            <div className="mt-1 text-[13px] text-gray-900 font-bold">
+              {Math.round(totalPrice / totalQuantity).toLocaleString()}원 <span className="text-gray-400 font-normal">개당</span>
+            </div>
           </div>
           
           <div className="flex justify-between items-end mt-2">
