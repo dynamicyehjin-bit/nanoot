@@ -46,7 +46,7 @@ export function Intro() {
 
         {/* Terms */}
         <div className="mt-6 mb-2 text-center text-[11px] text-gray-400 font-medium tracking-tight">
-          서비스 시작은 <a href="https://nanoot.notion.site/334bdbd837f180389ae0d93ff438d34c?source=copy_link" target="_blank" rel="noopener noreferrer" className="border-b border-gray-300 inline-block leading-[1.2]">서비스 이용약관</a> 및 <a href="https://nanoot.notion.site/333bdbd837f1802dadd4eb059b8c7562?source=copy_link" target="_blank" rel="noopener noreferrer" className="border-b border-gray-300 inline-block leading-[1.2]">개인정보 처리방침</a> 동의를 의미합니다.
+          서비스 시작은 <a href="https://nanoot.notion.site/334bdbd837f180389ae0d93ff438d34c" target="_blank" rel="noopener noreferrer" className="underline">서비스 이용약관</a> 및 <a href="https://nanoot.notion.site/333bdbd837f1802dadd4eb059b8c7562" target="_blank" rel="noopener noreferrer" className="underline">개인정보처리방침</a> 동의를 의미합니다.
         </div>
       </div>
     </div>

@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/Input';
 import { ChevronLeft, X, Plus, Minus, Camera } from 'lucide-react';
 import Image from 'next/image';
 import { CATEGORIES, CategoryValue } from '@/lib/categories';
+
 // CATEGORIES constant removed here, now using import
 const FEES = [
   { label: '5%', value: 0.05 },
