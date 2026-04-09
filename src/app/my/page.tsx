@@ -110,9 +110,9 @@ export default function MyPage() {
 
       <div className="p-6 pb-24 flex flex-col gap-2">
          <div className="flex gap-4 text-xs text-gray-400 font-medium">
-            <Link href="/terms" className="hover:underline text-gray-500">이용약관</Link>
+            <a href="https://nanoot.notion.site/334bdbd837f180389ae0d93ff438d34c" target="_blank" rel="noopener noreferrer" className="hover:underline text-gray-500">이용약관</a>
             <span className="text-gray-300">|</span>
-            <Link href="/privacy" className="hover:underline text-gray-500 font-bold">개인정보처리방침</Link>
+            <a href="https://nanoot.notion.site/333bdbd837f1802dadd4eb059b8c7562" target="_blank" rel="noopener noreferrer" className="hover:underline text-gray-500 font-bold">개인정보처리방침</a>
          </div>
          <p className="text-[11px] text-gray-400 leading-relaxed">
             나눗은 이웃 간의 신뢰를 바탕으로 하는 공동구매 나눔 서비스입니다.<br />
