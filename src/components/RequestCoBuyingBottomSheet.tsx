@@ -76,9 +76,14 @@ export function RequestCoBuyingBottomSheet({ isOpen, onClose }: RequestCoBuyingB
         onClose();
         setToastMessage('');
       }, 2000);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error submitting product request:', error);
-      alert('신청 중 오류가 발생했습니다. 다시 시도해주세요.');
+      const supabaseError = error as { code?: string };
+      if (supabaseError?.code === '23505') {
+        alert('이미 신청한 상품입니다.');
+      } else {
+        alert('신청 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
     } finally {
       setIsSubmitting(false);
     }
