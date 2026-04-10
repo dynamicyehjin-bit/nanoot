@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { UserProfileClient } from './UserProfileClient';
 import { NotificationToggle } from './NotificationToggle';
 import { Info, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export default function MyPage() {
   const [user, setUser] = useState<any>(null);
@@ -54,7 +55,38 @@ export default function MyPage() {
   }, [supabase]);
 
   if (isLoading) {
-    return <div className="p-6">로딩 중...</div>;
+    return (
+      <div className="flex flex-col flex-1 pb-20 bg-gray-50 min-h-screen">
+        {/* Header Skeleton */}
+        <header className="sticky top-0 bg-white/80 backdrop-blur-md z-10 px-4 py-4 flex items-center justify-center border-b border-gray-100">
+          <Skeleton className="w-20 h-6" />
+        </header>
+
+        {/* Profile Card Skeleton */}
+        <div className="bg-white p-5 mb-2 border-b border-gray-100 flex items-center gap-4">
+          <Skeleton className="w-[60px] h-[60px] rounded-full" />
+          <div className="flex flex-col gap-2">
+            <Skeleton className="w-24 h-5" />
+            <Skeleton className="w-32 h-4" />
+          </div>
+        </div>
+
+        {/* Menus Skeleton */}
+        <div className="bg-white mb-2 border-b border-gray-100 border-t">
+          <div className="flex flex-col">
+            {[1, 2, 3, 4].map((idx) => (
+              <div key={idx} className="flex justify-between items-center p-5 border-b border-gray-50 last:border-0 w-full">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="w-5 h-5 rounded-md" />
+                  <Skeleton className="w-28 h-5" />
+                </div>
+                <Skeleton className="w-5 h-5 rounded-md" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
