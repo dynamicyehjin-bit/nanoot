@@ -94,6 +94,12 @@ function CodeEntryView({ buildingId }: { buildingId: string }) {
           required
           value={inviteCode}
           onChange={(e) => setInviteCode(e.target.value)}
+          onFocus={(e) => {
+            e.preventDefault();
+            setTimeout(() => {
+              window.scrollTo(0, 0);
+            }, 100);
+          }}
           className="text-lg tracking-wider font-medium text-center"
         />
         <div className="mt-auto pt-4 border-t border-gray-100">
@@ -154,6 +160,12 @@ function BuildingSearchView() {
           placeholder="건물명 검색 (예: 나눗아파트)"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
+          onFocus={(e) => {
+            e.preventDefault();
+            setTimeout(() => {
+              window.scrollTo(0, 0);
+            }, 100);
+          }}
           className="flex-1"
         />
         <Button type="submit" disabled={isLoading} className="w-16">
